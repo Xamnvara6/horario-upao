@@ -1,0 +1,1762 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Plan Académico — UPAO</title>
+
+<!-- PWA Meta -->
+<meta name="application-name" content="Horario UPAO">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Horario UPAO">
+<meta name="theme-color" content="#080b12">
+<meta name="description" content="Plan Académico 45h — Medicina Humana UPAO 2do Ciclo">
+<meta name="mobile-web-app-capable" content="yes">
+
+<!-- PWA Manifest (inline via data URI so everything queda en un solo archivo) -->
+<link rel="manifest" href="data:application/manifest+json,%7B%22name%22%3A%22Plan+Acad%C3%A9mico+UPAO%22%2C%22short_name%22%3A%22Horario+UPAO%22%2C%22description%22%3A%22Plan+Acad%C3%A9mico+45h+%E2%80%94+Medicina+UPAO%22%2C%22start_url%22%3A%22.%22%2C%22display%22%3A%22standalone%22%2C%22background_color%22%3A%22%23080b12%22%2C%22theme_color%22%3A%22%23080b12%22%2C%22orientation%22%3A%22portrait-primary%22%2C%22icons%22%3A%5B%7B%22src%22%3A%22data%3Aimage%2Fsvg%2Bxml%2C%253Csvg+xmlns%3D'http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg'+viewBox%3D'0+0+512+512'%253E%253Crect+width%3D'512'+height%3D'512'+rx%3D'100'+fill%3D'%23080b12'%2F%253E%253Ccircle+cx%3D'256'+cy%3D'256'+r%3D'200'+fill%3D'none'+stroke%3D'%23c8392b'+stroke-width%3D'12'%2F%253E%253Cellipse+cx%3D'256'+cy%3D'220'+rx%3D'55'+ry%3D'75'+fill%3D'%23c8392b'%2F%253E%253Cellipse+cx%3D'256'+cy%3D'320'+rx%3D'75'+ry%3D'55'+fill%3D'%23c8392b'%2F%253E%253Cline+x1%3D'201'+y1%3D'190'+x2%3D'100'+y2%3D'120'+stroke%3D'%23c8392b'+stroke-width%3D'14'+stroke-linecap%3D'round'%2F%253E%253Cline+x1%3D'201'+y1%3D'220'+x2%3D'90'+y2%3D'220'+stroke%3D'%23c8392b'+stroke-width%3D'14'+stroke-linecap%3D'round'%2F%253E%253Cline+x1%3D'201'+y1%3D'250'+x2%3D'110'+y2%3D'310'+stroke%3D'%23c8392b'+stroke-width%3D'14'+stroke-linecap%3D'round'%2F%253E%253Cline+x1%3D'311'+y1%3D'190'+x2%3D'412'+y2%3D'120'+stroke%3D'%23c8392b'+stroke-width%3D'14'+stroke-linecap%3D'round'%2F%253E%253Cline+x1%3D'311'+y1%3D'220'+x2%3D'422'+y2%3D'220'+stroke%3D'%23c8392b'+stroke-width%3D'14'+stroke-linecap%3D'round'%2F%253E%253Cline+x1%3D'311'+y1%3D'250'+x2%3D'402'+y2%3D'310'+stroke%3D'%23c8392b'+stroke-width%3D'14'+stroke-linecap%3D'round'%2F%253E%253C%2Fsvg%253E%22%2C%22sizes%22%3A%22any%22%2C%22type%22%3A%22image%2Fsvg%2Bxml%22%7D%5D%7D">
+
+<!-- Apple touch icon inline SVG -->
+<link rel="apple-touch-icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'%3E%3Crect width='512' height='512' rx='100' fill='%23080b12'/%3E%3Ccircle cx='256' cy='256' r='200' fill='none' stroke='%23c8392b' stroke-width='12'/%3E%3Cellipse cx='256' cy='220' rx='55' ry='75' fill='%23c8392b'/%3E%3Cellipse cx='256' cy='320' rx='75' ry='55' fill='%23c8392b'/%3E%3C/svg%3E">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Mono:ital,wght@0,400;0,500;1,400&family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+/* ══════════════════════════════════════════════
+   TOKENS — Spider-Man Academic Planner
+══════════════════════════════════════════════ */
+:root {
+  /* backgrounds */
+  --bg:      #080b12;
+  --bg2:     #0f1420;
+  --bg3:     #161d2e;
+  --bg4:     #1b2338;
+
+  /* borders */
+  --bd:      rgba(255,255,255,.07);
+  --bd2:     rgba(255,255,255,.13);
+
+  /* text */
+  --tx:      #e8ecf5;
+  --tx-m:    #6e7a92;
+  --tx-d:    #3d4760;
+
+  /* accent — spider-man red */
+  --red:     #c8392b;
+  --red-l:   #e84545;
+  --red-bg:  rgba(200,57,43,.1);
+  --red-bd:  rgba(200,57,43,.3);
+  --red-glow: rgba(200,57,43,.15);
+
+  /* accent — spider-man blue */
+  --sblue:   #1a3566;
+  --sblue-l: #2a56b0;
+  --sblue-bg:rgba(42,86,176,.12);
+  --sblue-glow:rgba(42,86,176,.2);
+
+  /* web accent */
+  --web:     rgba(255,255,255,.04);
+
+  /* course colours */
+  --purple:  #b48af7;
+  --pbg:     rgba(180,138,247,.1);
+  --orange:  #f0a057;
+  --obg:     rgba(240,160,87,.1);
+  --yellow:  #f7d070;
+  --ybg:     rgba(247,208,112,.1);
+  --blue:    #7eb8f7;
+  --bbg:     rgba(126,184,247,.1);
+  --cred:    #f27070;
+  --crbg:    rgba(242,112,112,.1);
+  --teal:    #5fd4b0;
+  --tbg:     rgba(95,212,176,.1);
+  --accent:  #c8e855;
+  --abg:     rgba(200,232,85,.08);
+  --sport:   #fb923c;
+  --spbg:    rgba(251,146,60,.1);
+  --task:    #fbbf24;
+  --taskbg:  rgba(251,191,36,.08);
+
+  /* layout */
+  --r:   10px;
+  --r2:  14px;
+  --r3:  18px;
+  --sh:  0 4px 32px rgba(0,0,0,.6);
+  --sh2: 0 2px 14px rgba(0,0,0,.4);
+  --sh3: 0 1px 6px rgba(0,0,0,.3);
+
+  /* fonts */
+  --f-head: 'Bebas Neue', sans-serif;
+  --f-syne: 'Syne', sans-serif;
+  --f-body: 'DM Sans', sans-serif;
+  --f-mono: 'DM Mono', monospace;
+}
+
+/* ══ RESET ══════════════════════════════════ */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { font-size: 15px; scroll-behavior: smooth; -webkit-text-size-adjust: 100%; }
+body {
+  background: var(--bg);
+  color: var(--tx);
+  font-family: var(--f-body);
+  min-height: 100vh;
+  overflow-x: hidden;
+  line-height: 1.55;
+}
+
+/* ══ WEB TEXTURE ════════════════════════════ */
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background-image:
+    radial-gradient(ellipse 60% 45% at 5% 0%,   rgba(200,57,43,.12) 0%, transparent 60%),
+    radial-gradient(ellipse 50% 40% at 95% 100%, rgba(26,53,102,.25)  0%, transparent 55%),
+    radial-gradient(ellipse 30% 30% at 85% 10%,  rgba(200,57,43,.06)  0%, transparent 50%),
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='80' height='80'%3E%3Cg fill='none' stroke='rgba(255,255,255,.025)' stroke-width='0.5'%3E%3Cline x1='40' y1='0' x2='0' y2='69'/%3E%3Cline x1='40' y1='0' x2='80' y2='69'/%3E%3Cline x1='40' y1='0' x2='40' y2='80'/%3E%3Ccircle cx='40' cy='0' r='20'/%3E%3Ccircle cx='40' cy='0' r='40'/%3E%3Ccircle cx='40' cy='0' r='60'/%3E%3C/g%3E%3C/svg%3E");
+  background-size: auto, auto, auto, 80px 80px;
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* ══ PAGE CONTAINER ════════════════════════ */
+.page {
+  position: relative;
+  z-index: 1;
+  max-width: 1280px;
+  width: 100%;
+  margin: 0 auto;
+  padding: 0 2rem 5rem;
+}
+
+/* ══════════════════════════════════════════
+   HEADER
+══════════════════════════════════════════ */
+.hdr {
+  padding: 1.8rem 0 1.2rem;
+  border-bottom: 1px solid var(--bd);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1.5rem;
+  flex-wrap: wrap;
+  position: relative;
+}
+.hdr::after {
+  content: '';
+  position: absolute;
+  bottom: -1px; left: 0;
+  width: 160px; height: 2px;
+  background: linear-gradient(90deg, var(--red), var(--sblue-l), transparent);
+}
+
+.hdr-left { display: flex; align-items: center; gap: 1rem; }
+
+/* spider emblem */
+.spider-ico {
+  position: relative;
+  flex-shrink: 0;
+}
+.spider-ico::after {
+  content: '';
+  position: absolute;
+  inset: -4px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(200,57,43,.15), transparent 70%);
+  pointer-events: none;
+}
+.spider-ico svg { display: block; filter: drop-shadow(0 0 8px rgba(200,57,43,.4)); }
+
+.hdr-text h1 {
+  font-family: var(--f-head);
+  font-size: clamp(1.6rem, 3vw, 2.4rem);
+  letter-spacing: .06em;
+  line-height: 1;
+  color: var(--tx);
+  text-shadow: 0 0 28px rgba(200,57,43,.3);
+}
+.hdr-text h1 span { color: var(--accent); }
+.hdr-meta {
+  font-family: var(--f-mono);
+  font-size: 10.5px;
+  color: var(--tx-m);
+  margin-top: 6px;
+  display: flex;
+  gap: 14px;
+  flex-wrap: wrap;
+  letter-spacing: .03em;
+}
+.hdr-badges {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  align-items: center;
+}
+.w-badge {
+  background: linear-gradient(135deg, var(--accent), #b5d438);
+  color: #080b12;
+  font-family: var(--f-mono);
+  font-size: 10px;
+  font-weight: 600;
+  padding: 5px 14px;
+  border-radius: 999px;
+  white-space: nowrap;
+  box-shadow: 0 2px 10px rgba(200,232,85,.25);
+}
+.s-badge {
+  background: linear-gradient(135deg, var(--sport), #e07030);
+  color: #080b12;
+  font-family: var(--f-mono);
+  font-size: 10px;
+  font-weight: 600;
+  padding: 5px 14px;
+  border-radius: 999px;
+  white-space: nowrap;
+  box-shadow: 0 2px 10px rgba(251,146,60,.25);
+}
+
+/* ══ LEGEND ═════════════════════════════════ */
+.legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px 12px;
+  padding: .8rem 0;
+  border-bottom: 1px solid var(--bd);
+}
+.legend-item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-family: var(--f-mono);
+  font-size: 9.5px;
+  color: var(--tx-m);
+  letter-spacing: .03em;
+}
+.ldot {
+  width: 7px; height: 7px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+.lsep {
+  width: 1px; height: 13px;
+  background: var(--bd2);
+  margin: 0 4px;
+}
+
+/* ══ NAV ════════════════════════════════════ */
+.nav-wrap {
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  background: rgba(8,11,18,.94);
+  backdrop-filter: blur(18px);
+  -webkit-backdrop-filter: blur(18px);
+  border-bottom: 1px solid var(--bd);
+  margin: 0 -2rem;
+  padding: 0 2rem;
+}
+.nav {
+  display: flex;
+  gap: 3px;
+  overflow-x: auto;
+  scrollbar-width: none;
+  padding: .5rem 0;
+}
+.nav::-webkit-scrollbar { display: none; }
+.nav-btn {
+  padding: 6px 14px;
+  border: 1px solid transparent;
+  border-radius: var(--r);
+  background: none;
+  color: var(--tx-m);
+  font-family: var(--f-mono);
+  font-size: 10.5px;
+  font-weight: 500;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: all .18s ease;
+  letter-spacing: .04em;
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
+}
+.nav-btn:hover { color: var(--tx); border-color: var(--bd2); background: rgba(255,255,255,.03); }
+.nav-btn.active {
+  color: var(--accent);
+  border-color: rgba(200,232,85,.4);
+  background: var(--abg);
+  box-shadow: 0 0 12px rgba(200,232,85,.1);
+}
+.nav-btn.free  { color: var(--teal); }
+.nav-btn.free.active { border-color: rgba(95,212,176,.4); background: rgba(95,212,176,.07); box-shadow: 0 0 12px rgba(95,212,176,.1); }
+.nav-btn.brutal { color: var(--red-l); }
+.nav-btn.brutal.active { border-color: rgba(232,69,69,.4); background: var(--red-bg); box-shadow: 0 0 12px rgba(232,69,69,.1); }
+
+/* ══ PANELS ════════════════════════════════ */
+.panel { display: none; padding-top: 1.6rem; }
+.panel.active { display: block; }
+
+/* ══ DAY HEADER ════════════════════════════ */
+.day-hdr {
+  margin-bottom: 1.25rem;
+  padding-bottom: .85rem;
+  border-bottom: 1px solid var(--bd);
+}
+.day-title {
+  font-family: var(--f-syne);
+  font-size: clamp(1.1rem, 2.5vw, 1.4rem);
+  font-weight: 800;
+  letter-spacing: -.02em;
+  line-height: 1.2;
+}
+.day-sub {
+  font-family: var(--f-mono);
+  font-size: 10.5px;
+  color: var(--tx-m);
+  margin-top: 6px;
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  align-items: center;
+}
+.dtag {
+  padding: 3px 8px;
+  border-radius: 6px;
+  font-size: 9.5px;
+  font-family: var(--f-mono);
+  letter-spacing: .05em;
+  font-weight: 600;
+}
+.dtag-high   { background: var(--crbg);   color: var(--cred);  border: 1px solid rgba(242,112,112,.2); }
+.dtag-mid    { background: var(--obg);    color: var(--orange); border: 1px solid rgba(240,160,87,.2); }
+.dtag-free   { background: var(--tbg);    color: var(--teal);  border: 1px solid rgba(95,212,176,.2); }
+.dtag-brutal { background: var(--red-bg); color: var(--red-l); border: 1px solid var(--red-bd); }
+.dtag-sport  { background: var(--spbg);   color: var(--sport); border: 1px solid rgba(251,146,60,.2); }
+
+/* ══ HOURS BAR ════════════════════════════ */
+.h-bar {
+  display: flex;
+  gap: 0;
+  flex-wrap: wrap;
+  margin-bottom: 1.25rem;
+  padding: 0;
+  background: var(--bg2);
+  border-radius: var(--r2);
+  border: 1px solid var(--bd);
+  box-shadow: var(--sh2);
+  overflow: hidden;
+}
+.h-item {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  padding: .9rem 1.1rem;
+  position: relative;
+  flex: 1;
+  min-width: 80px;
+}
+.h-item:not(:last-child)::after {
+  content: '';
+  position: absolute;
+  right: 0; top: 20%; bottom: 20%;
+  width: 1px;
+  background: var(--bd2);
+}
+.h-val {
+  font-family: var(--f-mono);
+  font-size: 18px;
+  font-weight: 500;
+  color: var(--accent);
+  line-height: 1;
+}
+.h-val.sport { color: var(--sport); }
+.h-val.task  { color: var(--task); }
+.h-val.red   { color: var(--red-l); }
+.h-lbl {
+  font-family: var(--f-mono);
+  font-size: 8px;
+  color: var(--tx-m);
+  letter-spacing: .06em;
+  text-transform: uppercase;
+}
+.h-div { display: none; } /* hidden - now using ::after */
+
+/* ══ TIMELINE ══════════════════════════════ */
+.timeline { display: flex; flex-direction: column; gap: 2px; }
+
+.block {
+  display: flex;
+  gap: 12px;
+  align-items: flex-start;
+  padding: 10px 14px;
+  border-radius: var(--r);
+  border: 1px solid transparent;
+  transition: border-color .15s, background .15s, transform .1s;
+}
+.block:hover { border-color: var(--bd2) !important; }
+
+.b-class   { background: var(--bg2); border-color: var(--bd); }
+.b-study   { background: rgba(200,232,85,.04); border-color: rgba(200,232,85,.13); }
+.b-tarea   { background: rgba(251,191,36,.04); border-color: rgba(251,191,36,.15); }
+.b-exercise{ background: rgba(251,146,60,.05); border-color: rgba(251,146,60,.2); }
+.b-transit { background: transparent; border-color: var(--bd); opacity: .55; }
+.b-sleep   { background: var(--bg2); border-color: var(--bd); }
+.b-gap     { background: rgba(126,184,247,.03); border-color: rgba(126,184,247,.1); }
+.b-alert   { background: rgba(200,57,43,.05); border-color: var(--red-bd); }
+
+.b-time {
+  font-family: var(--f-mono);
+  font-size: 9.5px;
+  color: var(--tx-d);
+  min-width: 92px;
+  padding-top: 2px;
+  flex-shrink: 0;
+  letter-spacing: .02em;
+}
+.b-icon { font-size: 13px; flex-shrink: 0; padding-top: 1px; }
+.b-body { flex: 1; min-width: 0; }
+.b-label {
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--tx);
+  line-height: 1.35;
+}
+.b-note {
+  font-size: 10.5px;
+  color: var(--tx-m);
+  margin-top: 3px;
+  line-height: 1.45;
+}
+
+/* inline tags */
+.btag {
+  display: inline-flex;
+  align-items: center;
+  font-family: var(--f-mono);
+  font-size: 7.5px;
+  letter-spacing: .07em;
+  padding: 2px 6px;
+  border-radius: 3px;
+  margin-left: 5px;
+  font-weight: 600;
+  vertical-align: middle;
+}
+.btag-e { background: rgba(200,232,85,.14); color: var(--accent); }
+.btag-t { background: rgba(251,191,36,.14); color: var(--task); }
+.btag-s { background: rgba(251,146,60,.14); color: var(--sport); }
+
+/* alert badges */
+.abadge {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  font-family: var(--f-mono);
+  font-size: 8.5px;
+  letter-spacing: .05em;
+  padding: 2px 7px;
+  border-radius: 4px;
+  margin-left: 7px;
+  font-weight: 500;
+  vertical-align: middle;
+}
+.ab-red  { background: var(--red-bg); color: var(--red-l); border: 1px solid var(--red-bd); }
+.ab-ylw  { background: var(--taskbg); color: var(--task); }
+.ab-blu  { background: var(--bbg); color: var(--blue); }
+.ab-grn  { background: var(--tbg); color: var(--teal); }
+
+/* course dot */
+.cdot {
+  display: inline-block;
+  width: 6px; height: 6px;
+  border-radius: 50%;
+  margin-right: 4px;
+  vertical-align: middle;
+  position: relative; top: -1px;
+}
+
+/* ══ RULES BOX ═════════════════════════════ */
+.rules {
+  margin-top: 1.4rem;
+  padding: 1.1rem 1.25rem;
+  background: var(--bg2);
+  border-radius: var(--r2);
+  border: 1px solid var(--bd);
+  box-shadow: var(--sh2);
+}
+.rules-title {
+  font-family: var(--f-mono);
+  font-size: 9.5px;
+  letter-spacing: .1em;
+  color: var(--tx-m);
+  margin-bottom: 11px;
+  text-transform: uppercase;
+}
+.rule {
+  display: flex;
+  gap: 12px;
+  padding: 7px 0;
+  border-bottom: 1px solid var(--bd);
+  font-size: 11.5px;
+  color: var(--tx-m);
+  line-height: 1.5;
+}
+.rule:last-child { border-bottom: none; }
+.rule strong { color: var(--tx); }
+.rn {
+  font-family: var(--f-mono);
+  font-size: 9.5px;
+  color: var(--tx-d);
+  min-width: 18px;
+  padding-top: 1px;
+  flex-shrink: 0;
+}
+
+/* ══ SEM BANNER ════════════════════════════ */
+.sem-banner {
+  margin-bottom: 1.25rem;
+  padding: 12px 15px;
+  background: rgba(200,232,85,.04);
+  border: 1px solid rgba(200,232,85,.18);
+  border-radius: var(--r2);
+  font-size: 11.5px;
+  color: var(--accent);
+  display: flex;
+  gap: 10px;
+  align-items: flex-start;
+}
+.sem-banner .si { font-size: 16px; flex-shrink: 0; }
+.sem-banner span { line-height: 1.55; color: var(--tx-m); }
+.sem-banner span strong { color: var(--tx); }
+
+/* ══ OVERVIEW GRID ═════════════════════════ */
+.ov-grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 6px;
+  margin-bottom: 1.4rem;
+}
+.ov-col {
+  background: var(--bg2);
+  border: 1px solid var(--bd);
+  border-radius: var(--r2);
+  overflow: hidden;
+  cursor: pointer;
+  transition: border-color .15s, transform .18s, box-shadow .18s;
+}
+.ov-col:hover {
+  border-color: var(--bd2);
+  transform: translateY(-3px);
+  box-shadow: var(--sh);
+}
+.ov-hdr {
+  padding: 8px 6px 6px;
+  text-align: center;
+  border-bottom: 1px solid var(--bd);
+}
+.ov-day { font-family: var(--f-mono); font-size: 8.5px; letter-spacing: .07em; color: var(--tx-m); font-weight: 600; }
+.ov-load { font-family: var(--f-mono); font-size: 7.5px; margin-top: 2px; }
+.ov-body { padding: 6px; }
+.ov-pill {
+  font-size: 7.5px;
+  padding: 2px 5px;
+  border-radius: 4px;
+  margin-bottom: 3px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  font-family: var(--f-mono);
+  font-weight: 500;
+}
+
+/* ══ FREE DAY / STUDY BLOCKS ═══════════════ */
+.free-grid { display: grid; gap: 10px; }
+.sb-card {
+  padding: 14px 15px;
+  background: var(--bg2);
+  border: 1px solid var(--bd);
+  border-radius: var(--r2);
+  box-shadow: var(--sh3);
+  transition: border-color .15s;
+}
+.sb-card:hover { border-color: var(--bd2); }
+.sb-card h3 {
+  font-family: var(--f-syne);
+  font-size: 12.5px;
+  font-weight: 700;
+  margin-bottom: 8px;
+  display: flex;
+  align-items: baseline;
+  flex-wrap: wrap;
+  gap: 5px;
+}
+.sb-card .slot {
+  display: flex;
+  gap: 10px;
+  padding: 6px 0;
+  border-bottom: 1px solid var(--bd);
+  font-size: 11.5px;
+}
+.sb-card .slot:last-child { border-bottom: none; }
+.s-time {
+  font-family: var(--f-mono);
+  font-size: 9.5px;
+  color: var(--tx-m);
+  min-width: 90px;
+  padding-top: 1px;
+  flex-shrink: 0;
+}
+.s-task { color: var(--tx); line-height: 1.45; flex: 1; min-width: 0; }
+.s-task small { display: block; color: var(--tx-m); font-size: 10.5px; margin-top: 2px; }
+.s-task.is-study { border-left: 2px solid rgba(200,232,85,.4); padding-left: 8px; }
+.s-task.is-tarea { border-left: 2px solid rgba(251,191,36,.4); padding-left: 8px; }
+.s-task.is-sport { border-left: 2px solid rgba(251,146,60,.5); padding-left: 8px; }
+
+/* ══ SYLLABUS GRID ═════════════════════════ */
+.syl-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(270px, 1fr)); gap: 12px; }
+.cc {
+  background: var(--bg2);
+  border: 1px solid var(--bd);
+  border-radius: var(--r2);
+  padding: 14px;
+  transition: border-color .15s, transform .18s, box-shadow .18s;
+}
+.cc:hover { border-color: var(--bd2); transform: translateY(-2px); box-shadow: var(--sh2); }
+.cc-hdr {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 10px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid var(--bd);
+}
+.cc-dot  { width: 9px; height: 9px; border-radius: 50%; flex-shrink: 0; }
+.cc-name { font-family: var(--f-syne); font-size: 12px; font-weight: 700; line-height: 1.2; }
+.cc-cred { font-family: var(--f-mono); font-size: 8.5px; color: var(--tx-m); margin-left: auto; white-space: nowrap; }
+.cs {
+  display: flex;
+  justify-content: space-between;
+  padding: 4px 0;
+  font-size: 10.5px;
+  border-bottom: 1px solid var(--bd);
+  gap: 8px;
+}
+.cs:last-child { border-bottom: none; }
+.cs-lbl { color: var(--tx-m); }
+.cs-val { font-family: var(--f-mono); font-size: 9.5px; text-align: right; }
+.redflag {
+  margin-top: 9px;
+  padding: 7px 9px;
+  background: var(--red-bg);
+  border: 1px solid rgba(200,57,43,.18);
+  border-radius: 7px;
+  font-size: 9.5px;
+  color: var(--red-l);
+  line-height: 1.5;
+}
+
+/* ══ RESPONSIVE: LAPTOP (1024–1280px) ═══════ */
+@media (max-width: 1280px) {
+  .page { max-width: 100%; padding: 0 1.5rem 5rem; }
+  .nav-wrap { margin: 0 -1.5rem; padding: 0 1.5rem; }
+}
+
+/* ══ RESPONSIVE: TABLET (768–1024px) ════════ */
+@media (max-width: 1024px) {
+  .page { padding: 0 1.25rem 4rem; }
+  .nav-wrap { margin: 0 -1.25rem; padding: 0 1.25rem; }
+  .ov-grid { grid-template-columns: repeat(4, 1fr); }
+  .h-item { padding: .8rem .9rem; min-width: 70px; }
+  .h-val { font-size: 16px; }
+}
+
+/* ══ RESPONSIVE: TABLET MED (600–768px) ════ */
+@media (max-width: 768px) {
+  html { font-size: 14px; }
+  .page { padding: 0 1rem 4rem; }
+  .nav-wrap { margin: 0 -1rem; padding: 0 1rem; }
+  .hdr { padding: 1.3rem 0 1rem; gap: 1rem; }
+  .hdr-text h1 { font-size: 1.6rem; }
+  .hdr-badges { display: none; }
+  .ov-grid { grid-template-columns: repeat(4, 1fr); }
+  .free-grid { gap: 8px; }
+  .sb-card { padding: 12px 13px; }
+  .syl-grid { grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); }
+  .h-bar { flex-wrap: wrap; }
+  .h-item { flex: 0 0 auto; min-width: 65px; }
+}
+
+/* ══ RESPONSIVE: MOBILE (max 600px) ════════ */
+@media (max-width: 600px) {
+  html { font-size: 14px; }
+  .page { padding: 0 .85rem 3.5rem; }
+  .nav-wrap { margin: 0 -.85rem; padding: 0 .85rem; }
+  .hdr { padding: 1.1rem 0 .9rem; gap: .75rem; }
+  .hdr-text h1 { font-size: 1.35rem; }
+  .hdr-meta { font-size: 9.5px; gap: 8px; }
+  .hdr-badges { display: none; }
+  .legend { gap: 5px 8px; }
+  .legend-item { font-size: 9px; }
+  .lsep { display: none; }
+  .nav-btn { padding: 5px 10px; font-size: 9.5px; }
+  .nav { gap: 2px; }
+
+  /* overview grid: 2 columns on mobile */
+  .ov-grid { grid-template-columns: repeat(2, 1fr); gap: 5px; }
+  .ov-hdr { padding: 6px 5px 5px; }
+  .ov-day { font-size: 8px; }
+  .ov-load { font-size: 7px; }
+  .ov-pill { font-size: 7px; padding: 2px 4px; }
+
+  /* hours bar: horizontal scroll */
+  .h-bar { flex-wrap: nowrap; overflow-x: auto; scrollbar-width: none; gap: 0; }
+  .h-bar::-webkit-scrollbar { display: none; }
+  .h-item { flex: 0 0 auto; min-width: 60px; padding: .7rem .75rem; }
+  .h-val { font-size: 15px; }
+  .h-lbl { font-size: 7px; }
+
+  /* timeline */
+  .block { padding: 8px 10px; gap: 8px; }
+  .b-time { min-width: 72px; font-size: 9px; }
+  .b-icon { font-size: 12px; }
+  .b-label { font-size: 12px; }
+  .b-note { font-size: 10px; }
+
+  /* free day cards */
+  .sb-card { padding: 11px 11px; }
+  .sb-card h3 { font-size: 11.5px; }
+  .s-time { min-width: 74px; font-size: 9px; }
+  .sb-card .slot { font-size: 11px; gap: 8px; }
+  .s-task small { font-size: 10px; }
+
+  /* day header */
+  .day-title { font-size: 1.1rem; }
+  .day-sub { font-size: 9.5px; gap: 7px; }
+  .dtag { font-size: 9px; padding: 2px 7px; }
+
+  /* rules */
+  .rules { padding: .9rem 1rem; }
+  .rule { font-size: 11px; }
+  .rules-title { font-size: 9px; }
+
+  /* syllabus */
+  .syl-grid { grid-template-columns: 1fr; }
+  .cc { padding: 12px; }
+  .cc-name { font-size: 11.5px; }
+  .cs { font-size: 10px; }
+  .cs-val { font-size: 9px; }
+  .redflag { font-size: 9px; }
+
+  /* sem banner */
+  .sem-banner { padding: 10px 12px; font-size: 11px; }
+
+  /* header */
+  .spider-ico svg { width: 38px; height: 38px; }
+  .hdr-left { gap: .75rem; }
+}
+
+/* ══ RESPONSIVE: SMALL MOBILE (max 380px) ══ */
+@media (max-width: 380px) {
+  .page { padding: 0 .7rem 3rem; }
+  .nav-wrap { margin: 0 -.7rem; padding: 0 .7rem; }
+  .ov-grid { grid-template-columns: repeat(2, 1fr); }
+  .b-time { min-width: 64px; }
+  .s-time { min-width: 66px; }
+  .nav-btn { padding: 4px 8px; font-size: 9px; }
+  .h-item { min-width: 54px; padding: .65rem .65rem; }
+}
+
+/* ══ TOUCH IMPROVEMENTS ═════════════════════ */
+@media (hover: none) {
+  .block:hover { border-color: transparent !important; }
+  .ov-col:hover { transform: none; box-shadow: none; }
+  .cc:hover { transform: none; box-shadow: none; }
+  .nav-btn:hover { background: none; border-color: transparent; color: var(--tx-m); }
+}
+
+
+/* ══ PWA INSTALL BANNER ════════════════════ */
+#pwa-banner {
+  position: fixed;
+  bottom: 1.5rem;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 999;
+  background: linear-gradient(135deg, var(--bg3), var(--bg4));
+  border: 1px solid rgba(200,57,43,.35);
+  border-radius: var(--r2);
+  box-shadow: 0 8px 32px rgba(0,0,0,.6), 0 0 0 1px rgba(200,57,43,.1);
+  padding: 1rem 1.25rem;
+  display: flex;
+  align-items: center;
+  gap: .9rem;
+  max-width: 380px;
+  width: calc(100% - 2rem);
+  animation: slideUp .35s ease;
+}
+@keyframes slideUp {
+  from { opacity: 0; transform: translateX(-50%) translateY(20px); }
+  to   { opacity: 1; transform: translateX(-50%) translateY(0); }
+}
+#pwa-banner.hidden { display: none; }
+.pwa-icon {
+  width: 44px; height: 44px;
+  background: var(--red-bg);
+  border: 1px solid var(--red-bd);
+  border-radius: 10px;
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0;
+  font-size: 22px;
+}
+.pwa-text { flex: 1; min-width: 0; }
+.pwa-text strong {
+  display: block;
+  font-family: var(--f-syne);
+  font-size: 12.5px;
+  font-weight: 700;
+  color: var(--tx);
+  line-height: 1.2;
+}
+.pwa-text span {
+  font-family: var(--f-mono);
+  font-size: 10px;
+  color: var(--tx-m);
+  letter-spacing: .02em;
+}
+.pwa-install-btn {
+  background: linear-gradient(135deg, var(--red), #a02820);
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  font-family: var(--f-mono);
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: .05em;
+  padding: 7px 13px;
+  cursor: pointer;
+  white-space: nowrap;
+  box-shadow: 0 2px 10px rgba(200,57,43,.35);
+  transition: opacity .15s;
+}
+.pwa-install-btn:hover { opacity: .85; }
+.pwa-close {
+  background: none; border: none; color: var(--tx-d);
+  cursor: pointer; font-size: 16px; padding: 2px 4px;
+  flex-shrink: 0; line-height: 1;
+}
+.pwa-close:hover { color: var(--tx-m); }
+
+/* iOS instructions */
+#ios-hint {
+  position: fixed;
+  bottom: 1.5rem;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 999;
+  background: linear-gradient(135deg, var(--bg3), var(--bg4));
+  border: 1px solid rgba(200,57,43,.3);
+  border-radius: var(--r2);
+  box-shadow: 0 8px 32px rgba(0,0,0,.6);
+  padding: 1.1rem 1.25rem;
+  max-width: 340px;
+  width: calc(100% - 2rem);
+  text-align: center;
+  animation: slideUp .35s ease;
+}
+#ios-hint.hidden { display: none; }
+#ios-hint p {
+  font-family: var(--f-body);
+  font-size: 12px;
+  color: var(--tx-m);
+  line-height: 1.55;
+}
+#ios-hint strong { color: var(--tx); }
+#ios-hint .ios-close {
+  margin-top: .75rem;
+  background: none; border: 1px solid var(--bd2);
+  color: var(--tx-m); border-radius: 6px;
+  font-family: var(--f-mono); font-size: 10px;
+  padding: 5px 14px; cursor: pointer;
+}
+
+</style>
+</head>
+<body>
+<div class="page">
+
+<!-- ══ HEADER ══════════════════════════════ -->
+<div class="hdr">
+  <div class="hdr-left">
+    <div class="spider-ico">
+      <svg width="44" height="44" viewBox="0 0 44 44" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <circle cx="22" cy="22" r="20" fill="rgba(214,63,63,.12)" stroke="rgba(214,63,63,.35)" stroke-width="1.2"/>
+        <ellipse cx="22" cy="19" rx="4.5" ry="6" fill="#d63f3f"/>
+        <ellipse cx="22" cy="28" rx="6" ry="4.5" fill="#d63f3f"/>
+        <line x1="17.5" y1="17" x2="8"  y2="11" stroke="#d63f3f" stroke-width="1.2" stroke-linecap="round"/>
+        <line x1="17.5" y1="19" x2="7"  y2="19" stroke="#d63f3f" stroke-width="1.2" stroke-linecap="round"/>
+        <line x1="17.5" y1="21" x2="9"  y2="27" stroke="#d63f3f" stroke-width="1.2" stroke-linecap="round"/>
+        <line x1="26.5" y1="17" x2="36" y2="11" stroke="#d63f3f" stroke-width="1.2" stroke-linecap="round"/>
+        <line x1="26.5" y1="19" x2="37" y2="19" stroke="#d63f3f" stroke-width="1.2" stroke-linecap="round"/>
+        <line x1="26.5" y1="21" x2="35" y2="27" stroke="#d63f3f" stroke-width="1.2" stroke-linecap="round"/>
+        <ellipse cx="19.5" cy="16.5" rx="2" ry="1.6" fill="white" opacity=".9"/>
+        <ellipse cx="24.5" cy="16.5" rx="2" ry="1.6" fill="white" opacity=".9"/>
+      </svg>
+    </div>
+    <div class="hdr-text">
+      <h1>Plan <span>Académico</span> — UPAO</h1>
+      <div class="hdr-meta">
+        <span>Medicina Humana · 2do Ciclo</span>
+        <span>Sullana → Trujillo</span>
+        <span>6 cursos activos</span>
+      </div>
+    </div>
+  </div>
+  <div class="hdr-badges">
+    <div class="w-badge">45h ESTUDIO+TAREAS / SEM</div>
+    <div class="s-badge">🏃 +6h EJERCICIO</div>
+  </div>
+</div>
+
+<!-- ══ LEGEND ══════════════════════════════ -->
+<div class="legend">
+  <div class="legend-item"><div class="ldot" style="background:#b48af7"></div>Locomotor</div>
+  <div class="legend-item"><div class="ldot" style="background:#f0a057"></div>Excretor</div>
+  <div class="legend-item"><div class="ldot" style="background:#f7d070"></div>Bioquímica</div>
+  <div class="legend-item"><div class="ldot" style="background:#7eb8f7"></div>Bio Molecular</div>
+  <div class="legend-item"><div class="ldot" style="background:#f27070"></div>Casos Integr.</div>
+  <div class="legend-item"><div class="ldot" style="background:#5fd4b0"></div>Comunicación</div>
+  <div class="lsep"></div>
+  <div class="legend-item"><div class="ldot" style="background:#c8e855"></div>Estudio puro</div>
+  <div class="legend-item"><div class="ldot" style="background:#fbbf24"></div>Tarea/Entregable</div>
+  <div class="legend-item"><div class="ldot" style="background:#fb923c"></div>Ejercicio</div>
+</div>
+
+<!-- ══ STICKY NAV ═══════════════════════════ -->
+<div class="nav-wrap">
+  <nav class="nav">
+    <button class="nav-btn active"   onclick="show('overview')">VISIÓN SEMANAL</button>
+    <button class="nav-btn"          onclick="show('lunes')">LUN</button>
+    <button class="nav-btn brutal"   onclick="show('martes')">MAR ⚡</button>
+    <button class="nav-btn"          onclick="show('miercoles')">MIÉ</button>
+    <button class="nav-btn free"     onclick="show('jueves')">JUE LIBRE</button>
+    <button class="nav-btn free"     onclick="show('viernes')">VIE LIBRE</button>
+    <button class="nav-btn"          onclick="show('sabado')">SÁB</button>
+    <button class="nav-btn free"     onclick="show('domingo')">DOM LIBRE</button>
+    <button class="nav-btn"          onclick="show('silabos')">SÍLABOS</button>
+  </nav>
+</div>
+
+<div style="padding-top:.1rem"></div>
+
+<!-- ══════════════════════════════════════════
+     OVERVIEW
+══════════════════════════════════════════ -->
+<div id="overview" class="panel active">
+  <div class="sem-banner">
+    <div class="si">🎯</div>
+    <span><strong>Disciplina fija: 45h estudio+tareas + ~6h ejercicio cada semana.</strong> El 70% del estudio cae en Jue/Vie/Dom. Martes es supervivencia pura. El plan no negocia los días libres.</span>
+  </div>
+
+  <div class="ov-grid">
+    <div class="ov-col" onclick="show('lunes')">
+      <div class="ov-hdr">
+        <div class="ov-day">LUN</div>
+        <div class="ov-load" style="color:var(--orange)">4.5h</div>
+      </div>
+      <div class="ov-body">
+        <div class="ov-pill" style="background:var(--spbg);color:var(--sport)">🏃 30min</div>
+        <div class="ov-pill" style="background:var(--abg);color:var(--accent)">3h estudio</div>
+        <div class="ov-pill" style="background:var(--taskbg);color:var(--task)">1.5h tareas</div>
+        <div class="ov-pill" style="background:var(--bbg);color:var(--blue)">BioMol T</div>
+        <div class="ov-pill" style="background:var(--ybg);color:var(--yellow)">Bioquím T</div>
+        <div class="ov-pill" style="background:var(--obg);color:var(--orange)">Excretor T</div>
+        <div class="ov-pill" style="background:var(--pbg);color:var(--purple)">Locomotor T</div>
+      </div>
+    </div>
+    <div class="ov-col" onclick="show('martes')" style="border-color:rgba(214,63,63,.25)">
+      <div class="ov-hdr" style="background:rgba(214,63,63,.05)">
+        <div class="ov-day" style="color:var(--red-l)">MAR ⚡</div>
+        <div class="ov-load" style="color:var(--red-l)">0h — BRUTAL</div>
+      </div>
+      <div class="ov-body">
+        <div class="ov-pill" style="background:var(--bbg);color:var(--blue)">BioMol LAB</div>
+        <div class="ov-pill" style="background:var(--obg);color:var(--orange)">Excretor LAB</div>
+        <div class="ov-pill" style="background:var(--crbg);color:var(--cred)">C.Integr.</div>
+        <div class="ov-pill" style="background:var(--pbg);color:var(--purple)">Locomotor LAB</div>
+        <div class="ov-pill" style="background:var(--red-bg);color:var(--red-l)">Sobrevivir</div>
+      </div>
+    </div>
+    <div class="ov-col" onclick="show('miercoles')">
+      <div class="ov-hdr">
+        <div class="ov-day">MIÉ</div>
+        <div class="ov-load" style="color:var(--orange)">4h</div>
+      </div>
+      <div class="ov-body">
+        <div class="ov-pill" style="background:var(--spbg);color:var(--sport)">🏃 30min</div>
+        <div class="ov-pill" style="background:var(--taskbg);color:var(--task)">3h informe</div>
+        <div class="ov-pill" style="background:var(--abg);color:var(--accent)">1h estudio</div>
+        <div class="ov-pill" style="background:var(--ybg);color:var(--yellow)">Bioquím LAB</div>
+        <div class="ov-pill" style="background:var(--tbg);color:var(--teal)">Comunic T+P</div>
+      </div>
+    </div>
+    <div class="ov-col" onclick="show('jueves')" style="border-color:rgba(95,212,176,.18)">
+      <div class="ov-hdr" style="background:rgba(95,212,176,.04)">
+        <div class="ov-day" style="color:var(--teal)">JUE</div>
+        <div class="ov-load" style="color:var(--accent)">10.5h LIBRE</div>
+      </div>
+      <div class="ov-body">
+        <div class="ov-pill" style="background:var(--spbg);color:var(--sport)">🏃 1.5h</div>
+        <div class="ov-pill" style="background:var(--abg);color:var(--accent)">8.5h estudio</div>
+        <div class="ov-pill" style="background:var(--taskbg);color:var(--task)">2h tareas</div>
+        <div class="ov-pill" style="background:var(--pbg);color:var(--purple)">Locomotor 📖</div>
+        <div class="ov-pill" style="background:var(--obg);color:var(--orange)">Excretor 📖</div>
+        <div class="ov-pill" style="background:var(--ybg);color:var(--yellow)">Bioquímica 📖</div>
+      </div>
+    </div>
+    <div class="ov-col" onclick="show('viernes')" style="border-color:rgba(95,212,176,.18)">
+      <div class="ov-hdr" style="background:rgba(95,212,176,.04)">
+        <div class="ov-day" style="color:var(--teal)">VIE</div>
+        <div class="ov-load" style="color:var(--accent)">10.5h LIBRE</div>
+      </div>
+      <div class="ov-body">
+        <div class="ov-pill" style="background:var(--spbg);color:var(--sport)">🏃 1.5h</div>
+        <div class="ov-pill" style="background:var(--pbg);color:var(--purple)">Pretest prep 🦴</div>
+        <div class="ov-pill" style="background:var(--abg);color:var(--accent)">8.5h estudio</div>
+        <div class="ov-pill" style="background:var(--taskbg);color:var(--task)">2h tareas</div>
+        <div class="ov-pill" style="background:var(--tbg);color:var(--teal)">Informe Comunic.</div>
+      </div>
+    </div>
+    <div class="ov-col" onclick="show('sabado')">
+      <div class="ov-hdr">
+        <div class="ov-day">SÁB</div>
+        <div class="ov-load" style="color:var(--orange)">5h EVAL.</div>
+      </div>
+      <div class="ov-body">
+        <div class="ov-pill" style="background:var(--ybg);color:var(--yellow)">Bioquím P</div>
+        <div class="ov-pill" style="background:var(--obg);color:var(--orange)">Excretor P</div>
+        <div class="ov-pill" style="background:var(--pbg);color:var(--purple)">Locomotor LAB 🦴</div>
+        <div class="ov-pill" style="background:var(--abg);color:var(--accent)">5h gaps</div>
+      </div>
+    </div>
+    <div class="ov-col" onclick="show('domingo')" style="border-color:rgba(95,212,176,.18)">
+      <div class="ov-hdr" style="background:rgba(95,212,176,.04)">
+        <div class="ov-day" style="color:var(--teal)">DOM</div>
+        <div class="ov-load" style="color:var(--accent)">10.5h LIBRE</div>
+      </div>
+      <div class="ov-body">
+        <div class="ov-pill" style="background:var(--spbg);color:var(--sport)">🏃 1.5h</div>
+        <div class="ov-pill" style="background:var(--abg);color:var(--accent)">8h estudio</div>
+        <div class="ov-pill" style="background:var(--taskbg);color:var(--task)">2.5h tareas</div>
+        <div class="ov-pill" style="background:var(--ybg);color:var(--yellow)">Integración total</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="h-bar">
+    <div class="h-item"><div class="h-val">45h</div><div class="h-lbl">TOTAL ESTUDIO+TAREAS</div></div>
+    <div class="h-div"></div>
+    <div class="h-item"><div class="h-val sport">~6h</div><div class="h-lbl">EJERCICIO SEMANAL</div></div>
+    <div class="h-div"></div>
+    <div class="h-item"><div class="h-val">4.5h</div><div class="h-lbl">LUN</div></div>
+    <div class="h-item"><div class="h-val red">0h</div><div class="h-lbl">MAR</div></div>
+    <div class="h-item"><div class="h-val">4h</div><div class="h-lbl">MIÉ</div></div>
+    <div class="h-item"><div class="h-val">10.5h</div><div class="h-lbl">JUE</div></div>
+    <div class="h-item"><div class="h-val">10.5h</div><div class="h-lbl">VIE</div></div>
+    <div class="h-item"><div class="h-val">5h</div><div class="h-lbl">SÁB</div></div>
+    <div class="h-item"><div class="h-val">10.5h</div><div class="h-lbl">DOM</div></div>
+  </div>
+
+  <div class="rules">
+    <div class="rules-title">LAS 6 REGLAS FIJAS — CADA SEMANA</div>
+    <div class="rule"><div class="rn">01</div><div><strong>Jue/Vie/Dom son jornadas completas.</strong> 10.5h de estudio+tareas cada uno. Sin negociación. Son el núcleo del ciclo.</div></div>
+    <div class="rule"><div class="rn">02</div><div><strong>Ejercicio no reemplaza estudio.</strong> Va encima. Lun/Mié 30min mañana. Jue/Vie/Dom 1.5h en bloque.</div></div>
+    <div class="rule"><div class="rn">03</div><div><strong>Martes = 0h estudio. Punto.</strong> El cuerpo trabaja 14h+ de laboratorios. Estudio en martes = peor rendimiento el resto de la semana.</div></div>
+    <div class="rule"><div class="rn">04</div><div><strong>Informe Bioquímica: se empieza el martes noche si es posible, sino miércoles madrugada.</strong> El gap del miércoles solo alcanza para terminar, no para empezar.</div></div>
+    <div class="rule"><div class="rn">05</div><div><strong>Tareas y estudio NO son lo mismo.</strong> Verde = estudio puro. Ámbar = tarea (producir algo). Los dos suman a las 45h.</div></div>
+    <div class="rule"><div class="rn">06</div><div><strong>Sem 11 = Formativo 3 Locomotor.</strong> Los jueves/viernes de la semana previa son exclusivos de hueso. Sin excepciones.</div></div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════
+     LUNES
+══════════════════════════════════════════ -->
+<div id="lunes" class="panel">
+  <div class="day-hdr">
+    <div class="day-title">Lunes <span style="color:var(--tx-m);font-weight:400;font-size:.9rem">— Clases 9:45am–7:45pm</span></div>
+    <div class="day-sub">
+      <span class="dtag dtag-mid">4.5h ESTUDIO+TAREAS</span>
+      <span class="dtag dtag-sport">🏃 30min</span>
+      <span>Duerme a las 9:30pm — martes 4:30am</span>
+    </div>
+  </div>
+  <div class="h-bar">
+    <div class="h-item"><div class="h-val">3h</div><div class="h-lbl">ESTUDIO PURO</div></div>
+    <div class="h-div"></div>
+    <div class="h-item"><div class="h-val task">1.5h</div><div class="h-lbl">TAREAS</div></div>
+    <div class="h-div"></div>
+    <div class="h-item"><div class="h-val sport">30min</div><div class="h-lbl">EJERCICIO</div></div>
+    <div class="h-div"></div>
+    <div class="h-item"><div class="h-val">4</div><div class="h-lbl">CLASES</div></div>
+    <div class="h-div"></div>
+    <div class="h-item"><div class="h-val">Teoría</div><div class="h-lbl">LOCOMOTOR HOY</div></div>
+  </div>
+  <div class="timeline">
+    <div class="block b-sleep"><div class="b-time">5:00 – 5:20</div><div class="b-icon">🌅</div><div class="b-body"><div class="b-label">Despertar + aseo rápido</div></div></div>
+    <div class="block b-exercise">
+      <div class="b-time">5:20 – 5:50</div><div class="b-icon">🏃</div>
+      <div class="b-body"><div class="b-label">EJERCICIO <span class="btag btag-s">EJERCICIO</span></div><div class="b-note">30min — cardio ligero o rutina corta en casa. No agotarse, el día es largo.</div></div>
+    </div>
+    <div class="block b-study">
+      <div class="b-time">5:50 – 6:40</div><div class="b-icon">🦴</div>
+      <div class="b-body"><div class="b-label"><span class="cdot" style="background:var(--purple)"></span>Repaso Locomotor — estructuras semana <span class="btag btag-e">ESTUDIO</span><span class="abadge ab-red">PRETEST MAR LAB</span></div><div class="b-note">50min pomodoro. Atlas, piezas anotadas. Lo que ves hoy en teoría entra al pretest del martes en lab.</div></div>
+    </div>
+    <div class="block b-transit"><div class="b-time">6:40 – 6:50</div><div class="b-icon">–</div><div class="b-body"><div class="b-label">Descanso</div></div></div>
+    <div class="block b-study">
+      <div class="b-time">6:50 – 7:40</div><div class="b-icon">🔬</div>
+      <div class="b-body"><div class="b-label"><span class="cdot" style="background:var(--blue)"></span>Biología Molecular — lectura previa lab martes <span class="btag btag-e">ESTUDIO</span></div><div class="b-note">50min. Lectura asignada antes del lab 7am del martes. No llegar sin leer.</div></div>
+    </div>
+    <div class="block b-transit"><div class="b-time">7:40 – 7:50</div><div class="b-icon">–</div><div class="b-body"><div class="b-label">Descanso</div></div></div>
+    <div class="block b-tarea">
+      <div class="b-time">7:50 – 8:20</div><div class="b-icon">📝</div>
+      <div class="b-body"><div class="b-label"><span class="cdot" style="background:var(--yellow)"></span>Cuestionario previo Bioquímica <span class="btag btag-t">TAREA</span></div><div class="b-note">30min. Se entrega antes de la clase 11:30am. Hacerlo aquí, no en el gap.</div></div>
+    </div>
+    <div class="block b-transit">
+      <div class="b-time">8:20 – 8:50</div><div class="b-icon">🎒</div>
+      <div class="b-body"><div class="b-label">Desayuno + preparar bolso</div><div class="b-note">Llevar comida para el día. Martes también.</div></div>
+    </div>
+    <div class="block b-transit">
+      <div class="b-time">8:50 – 9:45</div><div class="b-icon">🚐</div>
+      <div class="b-body"><div class="b-label">Traslado Sullana → UPAO</div><div class="b-note">55min. Descansar. No estudiar en combi.</div></div>
+    </div>
+    <div class="block b-class" style="border-color:rgba(126,184,247,.28)">
+      <div class="b-time">9:45 – 11:30</div><div class="b-icon">🔬</div>
+      <div class="b-body"><div class="b-label"><span class="cdot" style="background:var(--blue)"></span>CLASE: Biología Molecular — Teoría</div><div class="b-note">PC-201 · 1h45 · Participar. Anotar lo que el docente enfatiza para el lab del martes.</div></div>
+    </div>
+    <div class="block b-class" style="border-color:rgba(247,208,112,.28)">
+      <div class="b-time">11:30 – 1:20</div><div class="b-icon">⚗️</div>
+      <div class="b-body"><div class="b-label"><span class="cdot" style="background:var(--yellow)"></span>CLASE: Bioquímica Médica — Teoría</div><div class="b-note">PC-203 · 1h50 · Cuestionario ya entregado. Enfocarse en la clase, no en completar nada.</div></div>
+    </div>
+    <div class="block b-gap">
+      <div class="b-time">1:20 – 2:00</div><div class="b-icon">🍽️</div>
+      <div class="b-body"><div class="b-label">Almuerzo en UPAO</div></div>
+    </div>
+    <div class="block b-tarea">
+      <div class="b-time">2:00 – 2:50</div><div class="b-icon">📖</div>
+      <div class="b-body"><div class="b-label"><span class="cdot" style="background:var(--orange)"></span>Lectura previa Excretor (aula invertida) <span class="btag btag-t">TAREA</span></div><div class="b-note">50min. Clase de Excretor es 4:10pm. La aula invertida evalúa que llegues habiendo leído. Sin lectura = nota directa perdida.</div></div>
+    </div>
+    <div class="block b-transit"><div class="b-time">2:50 – 3:00</div><div class="b-icon">–</div><div class="b-body"><div class="b-label">Descanso</div></div></div>
+    <div class="block b-study">
+      <div class="b-time">3:00 – 3:50</div><div class="b-icon">📄</div>
+      <div class="b-body"><div class="b-label"><span class="cdot" style="background:var(--blue)"></span>Avance TIN Biología Molecular <span class="btag btag-e">ESTUDIO</span></div><div class="b-note">50min. Artículo de revisión continuo. Sustenta sem 15 y sem 7. No se improvisa.</div></div>
+    </div>
+    <div class="block b-gap">
+      <div class="b-time">3:50 – 4:10</div><div class="b-icon">🛋️</div>
+      <div class="b-body"><div class="b-label">Buffer + traslado de aula</div></div>
+    </div>
+    <div class="block b-class" style="border-color:rgba(240,160,87,.28)">
+      <div class="b-time">4:10 – 5:55</div><div class="b-icon">🫘</div>
+      <div class="b-body"><div class="b-label"><span class="cdot" style="background:var(--orange)"></span>CLASE: Sistema Excretor — Teoría</div><div class="b-note">PC-502 · 1h45 · Aula invertida. La lectura ya está hecha. Participar activamente.</div></div>
+    </div>
+    <div class="block b-class" style="border-color:rgba(180,138,247,.3)">
+      <div class="b-time">6:00 – 7:45</div><div class="b-icon">🦴</div>
+      <div class="b-body"><div class="b-label"><span class="cdot" style="background:var(--purple)"></span>CLASE: Aparato Locomotor — TEORÍA <span class="abadge ab-red">PRETEST MAR LAB</span></div><div class="b-note">PE-803 · 1h45 · Lo que el docente enseña hoy entra al pretest del martes en laboratorio. Anotar todo.</div></div>
+    </div>
+    <div class="block b-transit">
+      <div class="b-time">7:45 – 8:40</div><div class="b-icon">🚐</div>
+      <div class="b-body"><div class="b-label">Regreso UPAO → Sullana</div><div class="b-note">Descansar. Mañana sale a las 6:10am.</div></div>
+    </div>
+    <div class="block b-study">
+      <div class="b-time">8:40 – 9:00</div><div class="b-icon">🧠</div>
+      <div class="b-body"><div class="b-label"><span class="cdot" style="background:var(--purple)"></span>Repaso rápido Locomotor — lo visto hoy <span class="btag btag-e">ESTUDIO</span></div><div class="b-note">20min. Repasar apuntes de la teoría antes de dormir. El contexto fresco consolida mejor.</div></div>
+    </div>
+    <div class="block b-sleep">
+      <div class="b-time">9:00 – 9:30</div><div class="b-icon">🌙</div>
+      <div class="b-body"><div class="b-label">Cena + preparar bolso martes</div><div class="b-note">Llevar snacks, agua, colación para el día más largo. Combi 6:10am.</div></div>
+    </div>
+    <div class="block b-sleep">
+      <div class="b-time">9:30 pm</div><div class="b-icon">😴</div>
+      <div class="b-body"><div class="b-label">DORMIR — obligatorio</div><div class="b-note">Martes despierta a las 4:30am. Dormir tarde es sabotear el día más importante del ciclo.</div></div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════
+     MARTES
+══════════════════════════════════════════ -->
+<div id="martes" class="panel">
+  <div class="day-hdr">
+    <div class="day-title" style="color:var(--red-l)">Martes ⚡ <span style="color:var(--tx-m);font-weight:400;font-size:.9rem">— Día más brutal del ciclo</span></div>
+    <div class="day-sub">
+      <span class="dtag dtag-brutal">7:00AM → 9:35PM · 14h35 DE CLASES</span>
+      <span>0h estudio · Sin ejercicio · Modo: sobrevivir</span>
+    </div>
+  </div>
+  <div class="h-bar">
+    <div class="h-item"><div class="h-val red">0h</div><div class="h-lbl">ESTUDIO+TAREAS</div></div>
+    <div class="h-div"></div>
+    <div class="h-item"><div class="h-val red">❌</div><div class="h-lbl">EJERCICIO</div></div>
+    <div class="h-div"></div>
+    <div class="h-item"><div class="h-val">14h35</div><div class="h-lbl">CLASES TOTALES</div></div>
+    <div class="h-div"></div>
+    <div class="h-item"><div class="h-val">Lab</div><div class="h-lbl">LOCOMOTOR HOY</div></div>
+  </div>
+  <div class="timeline">
+    <div class="block b-sleep"><div class="b-time">4:30 – 5:00</div><div class="b-icon">⏰</div><div class="b-body"><div class="b-label">Despertar — día más largo del ciclo</div><div class="b-note">Sale de Sullana a las 6:10am. Prepararse con calma.</div></div></div>
+    <div class="block b-sleep"><div class="b-time">5:00 – 6:10</div><div class="b-icon">🍳</div><div class="b-body"><div class="b-label">Desayuno fuerte + preparar todo</div><div class="b-note">El día dura hasta las 9:35pm. Llevar comida, snacks, agua. Revisar apuntes de anatomía si hay tiempo sobrante — no es estudio formal.</div></div></div>
+    <div class="block b-transit"><div class="b-time">6:10 – 7:00</div><div class="b-icon">🚐</div><div class="b-body"><div class="b-label">Traslado Sullana → UPAO</div><div class="b-note">50min. Descansar. No estudiar.</div></div></div>
+    <div class="block b-class" style="border-color:rgba(126,184,247,.3)">
+      <div class="b-time">7:00 – 10:35</div><div class="b-icon">🔬</div>
+      <div class="b-body"><div class="b-label"><span class="cdot" style="background:var(--blue)"></span>LAB: Biología Molecular <span class="abadge ab-blu">LAB</span></div><div class="b-note">PE-401 · 3h35 · PCR, electroforesis. Concentrarse. Apuntar los resultados para el informe.</div></div>
+    </div>
+    <div class="block b-gap"><div class="b-time">10:35 – 10:40</div><div class="b-icon">🏃</div><div class="b-body"><div class="b-label">Cambio de aula rápido</div></div></div>
+    <div class="block b-class" style="border-color:rgba(240,160,87,.3)">
+      <div class="b-time">10:40 – 2:15</div><div class="b-icon">🫘</div>
+      <div class="b-body"><div class="b-label"><span class="cdot" style="background:var(--orange)"></span>LAB: Sistema Excretor <span class="abadge ab-blu">LAB</span></div><div class="b-note">PE-301 · 3h35 · Anotar resultados. Llevar snack — no hay pausa larga entre laboratorios.</div></div>
+    </div>
+    <div class="block b-class" style="border-color:rgba(242,112,112,.3)">
+      <div class="b-time">2:20 – 5:55</div><div class="b-icon">🩺</div>
+      <div class="b-body"><div class="b-label"><span class="cdot" style="background:var(--cred)"></span>Casos Integradores <span class="abadge ab-red">CASO SEMANAL</span></div><div class="b-note">PC-202 · 3h35 · Resolución caso clínico grupal. Nota CA. Come en los 5min de traslado.</div></div>
+    </div>
+    <div class="block b-class" style="border-color:rgba(180,138,247,.4)">
+      <div class="b-time">6:00 – 9:35</div><div class="b-icon">🦴</div>
+      <div class="b-body"><div class="b-label"><span class="cdot" style="background:var(--purple)"></span>LAB: Aparato Locomotor <span class="abadge ab-red">PRETEST + ORAL CADÁVER</span></div><div class="b-note">PE-105 · 3h35 · Pretest escrito al inicio (estructuras de la semana) + Oral en cadáver/especímenes. Aquí es donde se evalúa el pretest y el oral, no en práctica.</div></div>
+    </div>
+    <div class="block b-transit"><div class="b-time">9:35 – 10:30</div><div class="b-icon">🚐</div><div class="b-body"><div class="b-label">Regreso UPAO → Sullana</div><div class="b-note">Si la energía lo permite, revisar mentalmente el caso integrador o el oral. No forzar.</div></div></div>
+    <div class="block b-sleep"><div class="b-time">10:30 – 11:00</div><div class="b-icon">🌙</div><div class="b-body"><div class="b-label">Cena mínima y dormir</div><div class="b-note">Mañana miércoles es otro día largo. No trasnochar.</div></div></div>
+  </div>
+  <div class="rules" style="border-color:rgba(214,63,63,.2)">
+    <div class="rules-title" style="color:var(--red-l)">MARTES — REGLAS DE SUPERVIVENCIA</div>
+    <div class="rule"><div class="rn">⚡</div><div><strong>Cero estudio planificado.</strong> El cuerpo trabaja 14h+. Intentar estudiar encima arruina jue/vie/dom.</div></div>
+    <div class="rule"><div class="rn">🍽️</div><div><strong>Come entre cada bloque.</strong> Entre Excretor y Casos hay 5min. Llevar snack en el bolsillo, no en la mochila.</div></div>
+    <div class="rule"><div class="rn">🦴</div><div><strong>Lab Locomotor al final = lo más ponderado.</strong> Toda la prep se hizo el viernes y lunes. Confiar en ese trabajo.</div></div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════
+     MIÉRCOLES
+══════════════════════════════════════════ -->
+<div id="miercoles" class="panel">
+  <div class="day-hdr">
+    <div class="day-title">Miércoles <span style="color:var(--tx-m);font-weight:400;font-size:.9rem">— Lab + Comunicación + Informe</span></div>
+    <div class="day-sub">
+      <span class="dtag dtag-mid">4h ESTUDIO+TAREAS</span>
+      <span class="dtag dtag-sport">🏃 30min</span>
+      <span>Informe Bioquímica: entregar antes de las 10pm</span>
+    </div>
+  </div>
+  <div class="h-bar">
+    <div class="h-item"><div class="h-val">1h</div><div class="h-lbl">ESTUDIO PURO</div></div>
+    <div class="h-div"></div>
+    <div class="h-item"><div class="h-val task">3h</div><div class="h-lbl">TAREAS (INFORME)</div></div>
+    <div class="h-div"></div>
+    <div class="h-item"><div class="h-val sport">30min</div><div class="h-lbl">EJERCICIO</div></div>
+    <div class="h-div"></div>
+    <div class="h-item"><div class="h-val">Informe</div><div class="h-lbl">BIOQUÍMICA</div></div>
+  </div>
+  <div class="timeline">
+    <div class="block b-sleep"><div class="b-time">6:00 – 6:30</div><div class="b-icon">🌅</div><div class="b-body"><div class="b-label">Despertar + aseo</div></div></div>
+    <div class="block b-exercise"><div class="b-time">6:30 – 7:00</div><div class="b-icon">🏃</div><div class="b-body"><div class="b-label">EJERCICIO <span class="btag btag-s">EJERCICIO</span></div><div class="b-note">30min en casa. Cardio o fuerza corta. Activa el cuerpo antes del día de laboratorio.</div></div></div>
+    <div class="block b-tarea">
+      <div class="b-time">7:00 – 7:50</div><div class="b-icon">📝</div>
+      <div class="b-body"><div class="b-label"><span class="cdot" style="background:var(--yellow)"></span>Inicio informe Bioquímica — esquema y datos del lab <span class="btag btag-t">TAREA</span><span class="abadge ab-red">ENTREGA HOY</span></div><div class="b-note">50min. Tener los resultados del lab del martes. Llenar la estructura del informe: objetivos, materiales, procedimiento. El cuerpo se completa en el gap de mediodía.</div></div>
+    </div>
+    <div class="block b-transit"><div class="b-time">7:50 – 8:00</div><div class="b-icon">🍳</div><div class="b-body"><div class="b-label">Desayuno rápido + prep</div></div></div>
+    <div class="block b-transit"><div class="b-time">8:00 – 9:45</div><div class="b-icon">🚐</div><div class="b-body"><div class="b-label">Traslado + buffer llegada UPAO</div></div></div>
+    <div class="block b-class" style="border-color:rgba(247,208,112,.3)">
+      <div class="b-time">9:45 – 12:25</div><div class="b-icon">⚗️</div>
+      <div class="b-body"><div class="b-label"><span class="cdot" style="background:var(--yellow)"></span>LAB: Bioquímica Médica <span class="abadge ab-red">INFORME HOY</span></div><div class="b-note">PE-701 · 2h40 · Guardar todos los datos, resultados y firmas del docente durante el lab.</div></div>
+    </div>
+    <div class="block b-tarea">
+      <div class="b-time">12:25 – 1:15</div><div class="b-icon">⏱️</div>
+      <div class="b-body"><div class="b-label">Completar informe Bioquímica — resultados y discusión <span class="btag btag-t">TAREA</span><span class="abadge ab-red">PRIORIDAD 1</span></div><div class="b-note">50min. Escribir resultados, discusión y conclusión con los datos frescos del lab. Subir antes del almuerzo si está listo.</div></div>
+    </div>
+    <div class="block b-gap"><div class="b-time">1:15 – 2:00</div><div class="b-icon">🍽️</div><div class="b-body"><div class="b-label">Almuerzo</div><div class="b-note">Solo si el informe ya está subido o casi listo. Si no, comer mientras terminas.</div></div></div>
+    <div class="block b-study">
+      <div class="b-time">2:00 – 2:20</div><div class="b-icon">📖</div>
+      <div class="b-body"><div class="b-label"><span class="cdot" style="background:var(--teal)"></span>Lectura Club Comunicación — revisar antes de entrar <span class="btag btag-e">ESTUDIO</span></div><div class="b-note">20min. Clase empieza a las 2:20pm. Repasar la lectura semanal para participar.</div></div>
+    </div>
+    <div class="block b-class" style="border-color:rgba(95,212,176,.28)">
+      <div class="b-time">2:20 – 4:05</div><div class="b-icon">💬</div>
+      <div class="b-body"><div class="b-label"><span class="cdot" style="background:var(--teal)"></span>CLASE: Comunicación I — Teoría</div><div class="b-note">PC-503 · 1h45 · Club de lectura — participar, puede calificar.</div></div>
+    </div>
+    <div class="block b-class" style="border-color:rgba(95,212,176,.28)">
+      <div class="b-time">4:10 – 7:45</div><div class="b-icon">🗣️</div>
+      <div class="b-body"><div class="b-label"><span class="cdot" style="background:var(--teal)"></span>CLASE: Comunicación I — Práctica (PT3)</div><div class="b-note">PC-503 · 3h35 · Actividad práctica semanal. Participar activamente.</div></div>
+    </div>
+    <div class="block b-transit"><div class="b-time">7:45 – 8:40</div><div class="b-icon">🚐</div><div class="b-body"><div class="b-label">Regreso UPAO → Sullana</div></div></div>
+    <div class="block b-tarea"><div class="b-time">8:40 – 9:00</div><div class="b-icon">📲</div><div class="b-body"><div class="b-label">Cena + verificar subida informe en EVA <span class="btag btag-t">TAREA</span></div><div class="b-note">Confirmar que el informe está enviado. Deadline 10pm.</div></div></div>
+    <div class="block b-study">
+      <div class="b-time">9:00 – 10:00</div><div class="b-icon">🧠</div>
+      <div class="b-body"><div class="b-label"><span class="cdot" style="background:var(--purple)"></span>Repaso Locomotor — estructuras de la semana <span class="btag btag-e">ESTUDIO</span></div><div class="b-note">1h. El pretest + oral de Locomotor es el martes en lab. Sábado en práctica: exposición/oral + informe. Repaso nocturno para consolidar.</div></div>
+    </div>
+    <div class="block b-sleep"><div class="b-time">10:30 pm</div><div class="b-icon">🌙</div><div class="b-body"><div class="b-label">Dormir</div><div class="b-note">Mañana jueves = día clave de 10.5h. Dormir bien es obligatorio.</div></div></div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════
+     JUEVES
+══════════════════════════════════════════ -->
+<div id="jueves" class="panel">
+  <div class="day-hdr">
+    <div class="day-title" style="color:var(--teal)">Jueves <span style="color:var(--tx-m);font-weight:400;font-size:.9rem">— Día libre · Jornada completa</span></div>
+    <div class="day-sub">
+      <span class="dtag dtag-free">10.5h ESTUDIO+TAREAS</span>
+      <span class="dtag dtag-sport">🏃 1.5h</span>
+      <span>Prioridad: Locomotor + Excretor</span>
+    </div>
+  </div>
+  <div class="h-bar">
+    <div class="h-item"><div class="h-val">8.5h</div><div class="h-lbl">ESTUDIO PURO</div></div>
+    <div class="h-div"></div>
+    <div class="h-item"><div class="h-val task">2h</div><div class="h-lbl">TAREAS</div></div>
+    <div class="h-div"></div>
+    <div class="h-item"><div class="h-val sport">1.5h</div><div class="h-lbl">EJERCICIO</div></div>
+  </div>
+  <div class="free-grid">
+    <div class="sb-card" style="border-color:rgba(251,146,60,.22)">
+      <h3><span style="color:var(--sport)">🏃</span> Ejercicio — Mañana temprano <span style="color:var(--tx-m);font-size:10.5px;font-weight:400">(1.5h)</span></h3>
+      <div class="slot"><div class="s-time">5:30 – 6:00</div><div class="s-task">Despertar + desayuno</div></div>
+      <div class="slot"><div class="s-time">6:00 – 7:30</div><div class="s-task is-sport"><strong>EJERCICIO — 1.5h</strong><small>Cardio, fuerza, lo que corresponda. La constancia importa más que la intensidad.</small></div></div>
+      <div class="slot"><div class="s-time">7:30 – 7:45</div><div class="s-task">Ducha + refresco</div></div>
+    </div>
+    <div class="sb-card" style="border-color:rgba(180,138,247,.22)">
+      <h3><span style="color:var(--purple)">🦴</span> Bloque 1 — Locomotor (2h) <span style="color:var(--tx-m);font-size:10.5px;font-weight:400">7:45–9:45</span></h3>
+      <div class="slot"><div class="s-time">7:45 – 8:45</div><div class="s-task is-study"><span class="cdot" style="background:var(--purple)"></span><strong>Locomotor — Estructuras de la semana actual</strong><small>Repaso anatómico con atlas. Músculos, huesos, articulaciones. Anotar lo que el docente enfatizó en la teoría del lunes.</small></div></div>
+      <div class="slot"><div class="s-time">8:45 – 8:55</div><div class="s-task">Descanso</div></div>
+      <div class="slot"><div class="s-time">8:55 – 9:45</div><div class="s-task is-study"><span class="cdot" style="background:var(--purple)"></span><strong>Locomotor — Preguntas tipo pretest OPM</strong><small>5 preguntas cronometradas. Simular el pretest del martes en lab.</small></div></div>
+    </div>
+    <div class="sb-card">
+      <h3><span style="color:var(--orange)">▸</span> Bloque 2 — Excretor (2h) <span style="color:var(--tx-m);font-size:10.5px;font-weight:400">9:55–11:55</span></h3>
+      <div class="slot"><div class="s-time">9:45 – 9:55</div><div class="s-task">Descanso</div></div>
+      <div class="slot"><div class="s-time">9:55 – 10:55</div><div class="s-task is-study"><span class="cdot" style="background:var(--orange)"></span><strong>Excretor — Fisiología renal semana actual</strong><small>Mecanismos, esquemas de flujo. Entender antes de memorizar.</small></div></div>
+      <div class="slot"><div class="s-time">10:55 – 11:05</div><div class="s-task">Descanso</div></div>
+      <div class="slot"><div class="s-time">11:05 – 11:55</div><div class="s-task is-study"><span class="cdot" style="background:var(--orange)"></span><strong>Excretor — Preguntas tipo post-test</strong><small>Simular las preguntas de la práctica del sábado (2:20pm). Post-test evaluado.</small></div></div>
+    </div>
+    <div class="sb-card">
+      <h3>☀️ Almuerzo + descanso real <span style="color:var(--tx-m);font-size:10.5px;font-weight:400">12:00–1:00</span></h3>
+      <div class="slot"><div class="s-time">12:00 – 1:00</div><div class="s-task">Almuerzo + descanso. Sin pantallas de estudio. El cerebro necesita la pausa para consolidar.</div></div>
+    </div>
+    <div class="sb-card">
+      <h3><span style="color:var(--yellow)">▸</span> Bloque 3 — Bioquímica (2h) <span style="color:var(--tx-m);font-size:10.5px;font-weight:400">1:00–3:00</span></h3>
+      <div class="slot"><div class="s-time">1:00 – 2:00</div><div class="s-task is-study"><span class="cdot" style="background:var(--yellow)"></span><strong>Bioquímica — Vías metabólicas semana</strong><small>Dibujar los esquemas de memoria. Muy acumulativo. No saltar semanas.</small></div></div>
+      <div class="slot"><div class="s-time">2:00 – 2:10</div><div class="s-task">Descanso</div></div>
+      <div class="slot"><div class="s-time">2:10 – 3:00</div><div class="s-task is-study"><span class="cdot" style="background:var(--yellow)"></span><strong>Bioquímica — Preguntas integradoras</strong><small>Conexión entre vías. El examen de Bioquímica integra temas previos.</small></div></div>
+    </div>
+    <div class="sb-card">
+      <h3><span style="color:var(--task)">📝</span> Bloque 4 — Tareas (2h) <span style="color:var(--tx-m);font-size:10.5px;font-weight:400">3:10–5:10</span></h3>
+      <div class="slot"><div class="s-time">3:00 – 3:10</div><div class="s-task">Descanso</div></div>
+      <div class="slot"><div class="s-time">3:10 – 4:10</div><div class="s-task is-tarea"><span class="cdot" style="background:var(--blue)"></span><strong>TIN Biología Molecular — avance artículo</strong><small>1h continua. Sustenta sem 7 y sem 15. Este es el espacio semanal fijo para avanzarlo.</small></div></div>
+      <div class="slot"><div class="s-time">4:10 – 4:20</div><div class="s-task">Descanso</div></div>
+      <div class="slot"><div class="s-time">4:20 – 5:10</div><div class="s-task is-tarea"><span class="cdot" style="background:var(--teal)"></span><strong>Lecturas Comunicación — Club semanal</strong><small>Lectura de la semana para el Club. Miércoles se evalúa si llegaste habiendo leído.</small></div></div>
+    </div>
+    <div class="sb-card">
+      <h3><span style="color:var(--blue)">▸</span> Bloque 5 — BioMol (2h) <span style="color:var(--tx-m);font-size:10.5px;font-weight:400">5:20–7:20</span></h3>
+      <div class="slot"><div class="s-time">5:10 – 5:20</div><div class="s-task">Descanso</div></div>
+      <div class="slot"><div class="s-time">5:20 – 6:20</div><div class="s-task is-study"><span class="cdot" style="background:var(--blue)"></span><strong>Biología Molecular — Teoría semana</strong><small>Mecanismos moleculares, mutaciones, polimorfismos. Examen unidad sem 12.</small></div></div>
+      <div class="slot"><div class="s-time">6:20 – 6:30</div><div class="s-task">Descanso</div></div>
+      <div class="slot"><div class="s-time">6:30 – 7:20</div><div class="s-task is-study"><span class="cdot" style="background:var(--blue)"></span><strong>BioMol — Preguntas tipo examen unidad</strong><small>Banco de preguntas. Proyectarse hacia sem 12.</small></div></div>
+    </div>
+    <div class="sb-card">
+      <h3><span style="color:var(--accent)">▸</span> Bloque 6 — Integración + cierre (1.5h) <span style="color:var(--tx-m);font-size:10.5px;font-weight:400">7:30–9:00</span></h3>
+      <div class="slot"><div class="s-time">7:20 – 7:30</div><div class="s-task">Cena</div></div>
+      <div class="slot"><div class="s-time">7:30 – 8:30</div><div class="s-task is-study"><strong>Repaso integrador del día</strong><small>Conectar lo de Locomotor + Excretor + BioMol. Preguntar: ¿cómo se relacionan? Eso es Casos Integradores.</small></div></div>
+      <div class="slot"><div class="s-time">8:30 – 9:00</div><div class="s-task is-study"><span class="cdot" style="background:var(--purple)"></span><strong>Locomotor — Repaso final estructuras en voz alta</strong><small>Simular el oral del martes (lab). "¿Qué músculo es este?" en voz alta. El oral va en lab, no en práctica.</small></div></div>
+      <div class="slot"><div class="s-time">10:30 pm</div><div class="s-task">Dormir · Mañana viernes mismo ritmo.</div></div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════
+     VIERNES
+══════════════════════════════════════════ -->
+<div id="viernes" class="panel">
+  <div class="day-hdr">
+    <div class="day-title" style="color:var(--teal)">Viernes <span style="color:var(--tx-m);font-weight:400;font-size:.9rem">— Día libre · Prep del sábado</span></div>
+    <div class="day-sub">
+      <span class="dtag dtag-free">10.5h ESTUDIO+TAREAS</span>
+      <span class="dtag dtag-sport">🏃 1.5h</span>
+      <span>Prioridad absoluta: Lab Locomotor martes (pretest + oral) · Sábado práctica = exposición + informe</span>
+    </div>
+  </div>
+  <div class="h-bar">
+    <div class="h-item"><div class="h-val">8.5h</div><div class="h-lbl">ESTUDIO PURO</div></div>
+    <div class="h-div"></div>
+    <div class="h-item"><div class="h-val task">2h</div><div class="h-lbl">TAREAS</div></div>
+    <div class="h-div"></div>
+    <div class="h-item"><div class="h-val sport">1.5h</div><div class="h-lbl">EJERCICIO</div></div>
+  </div>
+  <div class="free-grid">
+    <div class="sb-card" style="border-color:rgba(251,146,60,.22)">
+      <h3><span style="color:var(--sport)">🏃</span> Ejercicio — Mañana temprano <span style="color:var(--tx-m);font-size:10.5px;font-weight:400">(1.5h)</span></h3>
+      <div class="slot"><div class="s-time">5:30 – 6:00</div><div class="s-task">Despertar + desayuno</div></div>
+      <div class="slot"><div class="s-time">6:00 – 7:30</div><div class="s-task is-sport"><strong>EJERCICIO — 1.5h</strong><small>Igual que el jueves. Constancia. Sábado no hay ejercicio.</small></div></div>
+      <div class="slot"><div class="s-time">7:30 – 7:45</div><div class="s-task">Ducha + refresco</div></div>
+    </div>
+    <div class="sb-card" style="border-color:rgba(180,138,247,.22)">
+      <h3><span style="color:var(--purple)">🦴</span> Bloque 1 — LOCOMOTOR PRIMERO (3h) <span style="color:var(--tx-m);font-size:10.5px;font-weight:400">7:45–10:45</span></h3>
+      <div class="slot"><div class="s-time">7:45 – 8:45</div><div class="s-task is-study"><span class="cdot" style="background:var(--purple)"></span><strong>Locomotor — Estructuras disecadas del lab del martes</strong><small>Repasar lo que se disecó. El oral y pretest son el martes en lab (PE-105). El sábado en práctica se expone e informa.</small></div></div>
+      <div class="slot"><div class="s-time">8:45 – 8:55</div><div class="s-task">Descanso</div></div>
+      <div class="slot"><div class="s-time">8:55 – 9:55</div><div class="s-task is-study"><span class="cdot" style="background:var(--purple)"></span><strong>Locomotor — Pretest tipo preguntas OPM</strong><small>Pierna, pie, tobillo. 5 preguntas de opción múltiple tipo pretest. Cronometrar.</small></div></div>
+      <div class="slot"><div class="s-time">9:55 – 10:05</div><div class="s-task">Descanso</div></div>
+      <div class="slot"><div class="s-time">10:05 – 10:45</div><div class="s-task is-study"><span class="cdot" style="background:var(--purple)"></span><strong>Locomotor — Simulacro oral en voz alta</strong><small>"¿Qué estructura es esta?" en voz alta. Simular el cadáver. Quien lo dice en voz alta lo recuerda mejor.</small></div></div>
+    </div>
+    <div class="sb-card">
+      <h3><span style="color:var(--orange)">▸</span> Bloque 2 — Excretor + Bioquímica prep sábado (2h) <span style="color:var(--tx-m);font-size:10.5px;font-weight:400">10:45–12:45</span></h3>
+      <div class="slot"><div class="s-time">10:45 – 11:45</div><div class="s-task is-study"><span class="cdot" style="background:var(--orange)"></span><strong>Excretor — Preparar práctica del sábado</strong><small>2:20pm sábado evalúa. Post-test + caso clínico. Leer el tema y preguntas tipo.</small></div></div>
+      <div class="slot"><div class="s-time">11:45 – 11:55</div><div class="s-task">Descanso</div></div>
+      <div class="slot"><div class="s-time">11:55 – 12:45</div><div class="s-task is-study"><span class="cdot" style="background:var(--yellow)"></span><strong>Bioquímica — Preparar práctica del sábado</strong><small>7:55am sábado evalúa. Técnicas del lab de esta semana. Repasar procedimientos.</small></div></div>
+    </div>
+    <div class="sb-card">
+      <h3>☀️ Almuerzo + descanso real <span style="color:var(--tx-m);font-size:10.5px;font-weight:400">12:45–1:45</span></h3>
+      <div class="slot"><div class="s-time">12:45 – 1:45</div><div class="s-task">Almuerzo. Descanso sin estudio. Igual que el jueves.</div></div>
+    </div>
+    <div class="sb-card">
+      <h3><span style="color:var(--task)">📝</span> Bloque 3 — Tareas Comunicación (2h) <span style="color:var(--tx-m);font-size:10.5px;font-weight:400">1:45–3:45</span></h3>
+      <div class="slot"><div class="s-time">1:45 – 3:45</div><div class="s-task is-tarea"><span class="cdot" style="background:var(--teal)"></span><strong>Avance informe académico Comunicación</strong><small>2h dedicadas. El informe vale 60% EP2. Arranca sem 9, no se puede improvisar al final. Redactar párrafos, revisar Turnitin en borrador.</small></div></div>
+    </div>
+    <div class="sb-card">
+      <h3><span style="color:var(--blue)">▸</span> Bloque 4 — BioMol + Locomotor (2.5h) <span style="color:var(--tx-m);font-size:10.5px;font-weight:400">3:55–6:25</span></h3>
+      <div class="slot"><div class="s-time">3:45 – 3:55</div><div class="s-task">Descanso</div></div>
+      <div class="slot"><div class="s-time">3:55 – 4:55</div><div class="s-task is-study"><span class="cdot" style="background:var(--blue)"></span><strong>Biología Molecular — Mecanismos moleculares + TIN</strong><small>Repaso acumulativo. Sem 12 se acerca el examen de unidad.</small></div></div>
+      <div class="slot"><div class="s-time">4:55 – 5:05</div><div class="s-task">Descanso</div></div>
+      <div class="slot"><div class="s-time">5:05 – 6:05</div><div class="s-task is-study"><span class="cdot" style="background:var(--cred)"></span><strong>Casos Integradores — Conectar temas semana</strong><small>Relacionar Locomotor + Excretor + BioMol en un caso clínico. El martes se resuelve de nuevo.</small></div></div>
+      <div class="slot"><div class="s-time">6:05 – 6:25</div><div class="s-task is-study"><span class="cdot" style="background:var(--purple)"></span><strong>Locomotor — Repaso oral final antes de cena</strong><small>Estructuras clave en voz alta. Último repaso del día de la prep más importante.</small></div></div>
+    </div>
+    <div class="sb-card">
+      <h3><span style="color:var(--accent)">▸</span> Tarde libre + repaso nocturno</h3>
+      <div class="slot"><div class="s-time">6:30 – 8:00</div><div class="s-task">Cena + tiempo libre real. Descanso activo. Mañana sábado es evaluado y largo.</div></div>
+      <div class="slot"><div class="s-time">8:00 – 9:00</div><div class="s-task is-study"><span class="cdot" style="background:var(--purple)"></span><strong>Locomotor — Último repaso oral en voz alta</strong><small>1h. Cierre del día. Las estructuras que digas en voz alta esta noche son las que recuerdas mañana.</small></div></div>
+      <div class="slot"><div class="s-time">10:00 pm</div><div class="s-task">Dormir · Sábado sale ~7:10am</div></div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════
+     SÁBADO
+══════════════════════════════════════════ -->
+<div id="sabado" class="panel">
+  <div class="day-hdr">
+    <div class="day-title">Sábado <span style="color:var(--tx-m);font-weight:400;font-size:.9rem">— 2 prácticas + 1 laboratorio evaluados · 5h en gaps</span></div>
+    <div class="day-sub">
+      <span class="dtag dtag-high">EVALUADO</span>
+      <span>Sale 7:10am · Llega ~10:45pm · Sin ejercicio</span>
+    </div>
+  </div>
+  <div class="h-bar">
+    <div class="h-item"><div class="h-val">5h</div><div class="h-lbl">ESTUDIO EN GAPS</div></div>
+    <div class="h-div"></div>
+    <div class="h-item"><div class="h-val red">❌</div><div class="h-lbl">EJERCICIO</div></div>
+    <div class="h-div"></div>
+    <div class="h-item"><div class="h-val">2P+1Lab</div><div class="h-lbl">EVALUACIONES</div></div>
+    <div class="h-div"></div>
+    <div class="h-item"><div class="h-val">Práctica</div><div class="h-lbl">LOCOMOTOR HOY</div></div>
+  </div>
+  <div class="timeline">
+    <div class="block b-sleep"><div class="b-time">4:30 – 5:00</div><div class="b-icon">⏰</div><div class="b-body"><div class="b-label">Despertar + desayuno fuerte</div><div class="b-note">Día hasta ~10:45pm. Desayuno completo.</div></div></div>
+    <div class="block b-study">
+      <div class="b-time">5:30 – 6:20</div><div class="b-icon">🦴</div>
+      <div class="b-body"><div class="b-label"><span class="cdot" style="background:var(--purple)"></span>Repaso final Locomotor — pretest en 5 preguntas <span class="btag btag-e">ESTUDIO</span></div><div class="b-note">50min. Última vuelta antes de salir. Solo lo más importante del pretest.</div></div>
+    </div>
+    <div class="block b-study">
+      <div class="b-time">6:20 – 7:05</div><div class="b-icon">⚗️</div>
+      <div class="b-body"><div class="b-label"><span class="cdot" style="background:var(--yellow)"></span>Repaso final Bioquímica — técnicas del lab <span class="btag btag-e">ESTUDIO</span></div><div class="b-note">45min. La práctica de Bioquímica arranca a las 7:55am. Repasar procedimientos clave.</div></div>
+    </div>
+    <div class="block b-transit"><div class="b-time">7:05 – 7:55</div><div class="b-icon">🚐</div><div class="b-body"><div class="b-label">Traslado Sullana → UPAO</div></div></div>
+    <div class="block b-class" style="border-color:rgba(247,208,112,.3)">
+      <div class="b-time">7:55 – 10:35</div><div class="b-icon">⚗️</div>
+      <div class="b-body"><div class="b-label"><span class="cdot" style="background:var(--yellow)"></span>PRÁCTICA: Bioquímica Médica <span class="abadge ab-ylw">CALIFICADO</span></div><div class="b-note">PC-301 · 2h40 · Evaluación práctica. Técnicas del lab.</div></div>
+    </div>
+    <div class="block b-study">
+      <div class="b-time">10:35 – 11:25</div><div class="b-icon">🦴</div>
+      <div class="b-body"><div class="b-label"><span class="cdot" style="background:var(--purple)"></span>Repaso Locomotor — oral cadáver estructuras <span class="btag btag-e">ESTUDIO</span></div><div class="b-note">50min. Antes de almorzar. Concentrarse en las estructuras que el docente enfatizó en el lab del martes.</div></div>
+    </div>
+    <div class="block b-gap"><div class="b-time">11:25 – 12:15</div><div class="b-icon">🍽️</div><div class="b-body"><div class="b-label">Almuerzo + descanso</div><div class="b-note">Comer bien. La tarde tiene 2 prácticas más.</div></div></div>
+    <div class="block b-study">
+      <div class="b-time">12:15 – 1:15</div><div class="b-icon">🫘</div>
+      <div class="b-body"><div class="b-label"><span class="cdot" style="background:var(--orange)"></span>Repaso Excretor — práctica 2:20pm <span class="btag btag-e">ESTUDIO</span></div><div class="b-note">1h. Post-test + caso clínico. Repasar el tema semanal y preguntas tipo.</div></div>
+    </div>
+    <div class="block b-study">
+      <div class="b-time">1:15 – 2:15</div><div class="b-icon">🦴</div>
+      <div class="b-body"><div class="b-label"><span class="cdot" style="background:var(--purple)"></span>Locomotor — Repasar exposición asignada en voz alta <span class="btag btag-e">ESTUDIO</span></div><div class="b-note">1h. La práctica sábado es exposición + informe. Repasar el tema de exposición asignado, no el oral del cadáver (ese fue el martes en lab).</div></div>
+    </div>
+    <div class="block b-class" style="border-color:rgba(240,160,87,.3)">
+      <div class="b-time">2:20 – 4:05</div><div class="b-icon">🫘</div>
+      <div class="b-body"><div class="b-label"><span class="cdot" style="background:var(--orange)"></span>PRÁCTICA: Sistema Excretor <span class="abadge ab-ylw">CALIFICADO</span></div><div class="b-note">PC-301 · 1h45 · Post-test + caso clínico.</div></div>
+    </div>
+    <div class="block b-study">
+      <div class="b-time">4:05 – 5:05</div><div class="b-icon">🦴</div>
+      <div class="b-body"><div class="b-label"><span class="cdot" style="background:var(--purple)"></span>Locomotor — Prep práctica sábado: repasar exposición + informe <span class="btag btag-e">ESTUDIO</span><span class="abadge ab-red">PRÁCT 7:50PM</span></div><div class="b-note">1h. La práctica del sábado es exposición o examen oral + presentar informe. Repasar el contenido de la exposición asignada.</div></div>
+    </div>
+    <div class="block b-gap"><div class="b-time">5:05 – 7:45</div><div class="b-icon">🛋️</div><div class="b-body"><div class="b-label">Descanso real + repaso mental liviano</div><div class="b-note">No sobre-estudiar antes del oral. El cuerpo necesita estado de alerta, no más data.</div></div></div>
+    <div class="block b-class" style="border-color:rgba(180,138,247,.38)">
+      <div class="b-time">7:50 – 9:35</div><div class="b-icon">🦴</div>
+      <div class="b-body"><div class="b-label"><span class="cdot" style="background:var(--purple)"></span>PRÁCTICA: Aparato Locomotor <span class="abadge ab-red">EXPOSICIÓN/ORAL + INFORME</span></div><div class="b-note">PC-202 · 1h45 · Cada semana: exposición o examen oral según corresponda + presentar informe. Es práctica, no laboratorio.</div></div>
+    </div>
+    <div class="block b-transit"><div class="b-time">9:35 – 10:45</div><div class="b-icon">🚐</div><div class="b-body"><div class="b-label">Regreso UPAO → Sullana</div></div></div>
+    <div class="block b-sleep"><div class="b-time">11:00 pm</div><div class="b-icon">🌙</div><div class="b-body"><div class="b-label">Dormir — mañana domingo 10.5h</div><div class="b-note">Domingo empieza tarde (descanso post-sábado) pero la jornada completa compensa.</div></div></div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════
+     DOMINGO
+══════════════════════════════════════════ -->
+<div id="domingo" class="panel">
+  <div class="day-hdr">
+    <div class="day-title" style="color:var(--teal)">Domingo <span style="color:var(--tx-m);font-weight:400;font-size:.9rem">— Día libre · Integración + cierre</span></div>
+    <div class="day-sub">
+      <span class="dtag dtag-free">10.5h ESTUDIO+TAREAS</span>
+      <span class="dtag dtag-sport">🏃 1.5h</span>
+      <span>Llegaste tarde el sábado — empezar sin alarma hasta las 8am</span>
+    </div>
+  </div>
+  <div class="h-bar">
+    <div class="h-item"><div class="h-val">8h</div><div class="h-lbl">ESTUDIO PURO</div></div>
+    <div class="h-div"></div>
+    <div class="h-item"><div class="h-val task">2.5h</div><div class="h-lbl">TAREAS</div></div>
+    <div class="h-div"></div>
+    <div class="h-item"><div class="h-val sport">1.5h</div><div class="h-lbl">EJERCICIO</div></div>
+  </div>
+  <div class="free-grid">
+    <div class="sb-card">
+      <h3>🌅 Mañana — Despertar con calma</h3>
+      <div class="slot"><div class="s-time">8:00 – 8:30</div><div class="s-task">Despertar sin alarma (si se puede). Desayuno largo. Sin urgencia hasta las 8:30am.</div></div>
+    </div>
+    <div class="sb-card" style="border-color:rgba(251,146,60,.22)">
+      <h3><span style="color:var(--sport)">🏃</span> Ejercicio — Media mañana <span style="color:var(--tx-m);font-size:10.5px;font-weight:400">(1.5h)</span></h3>
+      <div class="slot"><div class="s-time">8:30 – 10:00</div><div class="s-task is-sport"><strong>EJERCICIO — 1.5h</strong><small>Después del desayuno calmado. El más relajado de los tres días libres. Sin presión de tiempo.</small></div></div>
+      <div class="slot"><div class="s-time">10:00 – 10:15</div><div class="s-task">Ducha + refresco</div></div>
+    </div>
+    <div class="sb-card">
+      <h3><span style="color:var(--yellow)">▸</span> Bloque 1 — Bioquímica + BioMol repaso (2h) <span style="color:var(--tx-m);font-size:10.5px;font-weight:400">10:15–12:15</span></h3>
+      <div class="slot"><div class="s-time">10:15 – 11:15</div><div class="s-task is-study"><span class="cdot" style="background:var(--yellow)"></span><strong>Bioquímica — Repaso vías metabólicas semana</strong><small>Consolidar. Dibujar de memoria. Conectar con semanas anteriores.</small></div></div>
+      <div class="slot"><div class="s-time">11:15 – 11:25</div><div class="s-task">Descanso</div></div>
+      <div class="slot"><div class="s-time">11:25 – 12:15</div><div class="s-task is-study"><span class="cdot" style="background:var(--blue)"></span><strong>Biología Molecular — Repaso teoría semana</strong><small>Mecanismos, mutaciones. Acumular para sem 12.</small></div></div>
+    </div>
+    <div class="sb-card">
+      <h3>☀️ Almuerzo familiar + descanso <span style="color:var(--tx-m);font-size:10.5px;font-weight:400">12:15–1:15</span></h3>
+      <div class="slot"><div class="s-time">12:15 – 1:15</div><div class="s-task">Almuerzo. Con la familia si es posible. Descanso real.</div></div>
+    </div>
+    <div class="sb-card">
+      <h3><span style="color:var(--task)">📝</span> Bloque 2 — Tareas pendientes semana (2.5h) <span style="color:var(--tx-m);font-size:10.5px;font-weight:400">1:15–3:45</span></h3>
+      <div class="slot"><div class="s-time">1:15 – 2:15</div><div class="s-task is-tarea"><span class="cdot" style="background:var(--teal)"></span><strong>Informe académico Comunicación — avance / revisión</strong><small>1h. Continuar el informe que arrancó el viernes. Agregar párrafos, revisar estructura.</small></div></div>
+      <div class="slot"><div class="s-time">2:15 – 2:25</div><div class="s-task">Descanso</div></div>
+      <div class="slot"><div class="s-time">2:25 – 3:25</div><div class="s-task is-tarea"><span class="cdot" style="background:var(--blue)"></span><strong>TIN Biología Molecular — avance artículo</strong><small>1h. Segundo bloque semanal fijo del TIN. No acumular.</small></div></div>
+      <div class="slot"><div class="s-time">3:25 – 3:45</div><div class="s-task is-tarea"><strong>Revisar encuesta Casos Integradores + pendientes semana</strong><small>30min. Revisar WhatsApp grupal, confirmar tema del caso siguiente, cualquier pendiente.</small></div></div>
+    </div>
+    <div class="sb-card">
+      <h3><span style="color:var(--orange)">▸</span> Bloque 3 — Excretor + Locomotor (2h) <span style="color:var(--tx-m);font-size:10.5px;font-weight:400">3:55–5:55</span></h3>
+      <div class="slot"><div class="s-time">3:45 – 3:55</div><div class="s-task">Descanso</div></div>
+      <div class="slot"><div class="s-time">3:55 – 4:55</div><div class="s-task is-study"><span class="cdot" style="background:var(--orange)"></span><strong>Excretor — Integración semanal</strong><small>Conectar el tema de esta semana con los anteriores. Preguntas tipo examen parcial.</small></div></div>
+      <div class="slot"><div class="s-time">4:55 – 5:05</div><div class="s-task">Descanso</div></div>
+      <div class="slot"><div class="s-time">5:05 – 5:55</div><div class="s-task is-study"><span class="cdot" style="background:var(--purple)"></span><strong>Locomotor — Integración estructuras semana</strong><small>Conectar músculos, huesos y articulaciones del tema. Ver el cuadro completo.</small></div></div>
+    </div>
+    <div class="sb-card">
+      <h3><span style="color:var(--accent)">▸</span> Bloque 4 — Integración total + prep lunes (2h) <span style="color:var(--tx-m);font-size:10.5px;font-weight:400">6:05–8:05</span></h3>
+      <div class="slot"><div class="s-time">5:55 – 6:10</div><div class="s-task">Descanso</div></div>
+      <div class="slot"><div class="s-time">6:10 – 7:10</div><div class="s-task is-study"><strong>Integración semanal — conectar los 4 cursos principales</strong><small>¿Cómo se relaciona lo de Locomotor + Excretor + BioMol esta semana? Ese es Casos Integradores. Preparar la respuesta mental para el martes.</small></div></div>
+      <div class="slot"><div class="s-time">7:10 – 7:20</div><div class="s-task">Descanso</div></div>
+      <div class="slot"><div class="s-time">7:20 – 8:05</div><div class="s-task is-study"><strong>Preparar lecturas previas del lunes</strong><small>Excretor (aula invertida 4:10pm) → leer el tema. Bioquímica (11:30am) → cuestionario previo rápido.</small></div></div>
+    </div>
+    <div class="sb-card">
+      <h3><span style="color:var(--teal)">▸</span> Cierre + tiempo libre</h3>
+      <div class="slot"><div class="s-time">8:05 – 9:30</div><div class="s-task">Cena + tiempo libre real. Sin estudio. El ciclo es largo — sostener el ritmo importa más que el sprint de una semana.</div></div>
+      <div class="slot"><div class="s-time">10:00 – 10:30</div><div class="s-task">Dormir · Mañana lunes sale a las ~8:50am · Despertar 5:00am.</div></div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════
+     SÍLABOS
+══════════════════════════════════════════ -->
+<div id="silabos" class="panel">
+  <div class="day-hdr">
+    <div class="day-title">Sílabos <span style="color:var(--tx-m);font-weight:400;font-size:.9rem">— 6 cursos activos · Sem 10/17</span></div>
+  </div>
+  <div class="syl-grid">
+    <div class="cc" style="border-color:rgba(180,138,247,.22)">
+      <div class="cc-hdr"><div class="cc-dot" style="background:var(--purple)"></div><div class="cc-name">Aparato Locomotor</div><div class="cc-cred">5 créditos</div></div>
+      <div class="cs"><div class="cs-lbl">Memoria (1–5)</div><div class="cs-val" style="color:var(--cred)">5 / 5</div></div>
+      <div class="cs"><div class="cs-lbl">Comprensión</div><div class="cs-val" style="color:var(--orange)">3 / 5</div></div>
+      <div class="cs"><div class="cs-lbl">Horas normales</div><div class="cs-val">10–12h/sem</div></div>
+      <div class="cs"><div class="cs-lbl">Horas sem bomba</div><div class="cs-val" style="color:var(--cred)">18–22h/sem</div></div>
+      <div class="cs"><div class="cs-lbl">Próxima bomba</div><div class="cs-val" style="color:var(--cred)">Sem 11 — Formativo 3</div></div>
+      <div class="cs"><div class="cs-lbl">Fórmula</div><div class="cs-val" style="font-size:8.5px">20%EP1 + 20%EP2 + 30%EP + 30%EF</div></div>
+      <div class="cs"><div class="cs-lbl">Pretest + Oral</div><div class="cs-val" style="color:var(--cred)">35% EP1/EP2 · Lab martes (PE-105)</div></div>
+      <div class="redflag">⚠ El pretest penaliza desde sem 2 sin recuperación. El oral de lab puede hundir EP si fallas seguido.</div>
+    </div>
+    <div class="cc" style="border-color:rgba(240,160,87,.22)">
+      <div class="cc-hdr"><div class="cc-dot" style="background:var(--orange)"></div><div class="cc-name">Sistema Excretor</div><div class="cc-cred">5 créditos</div></div>
+      <div class="cs"><div class="cs-lbl">Memoria (1–5)</div><div class="cs-val" style="color:var(--orange)">4 / 5</div></div>
+      <div class="cs"><div class="cs-lbl">Comprensión</div><div class="cs-val" style="color:var(--cred)">5 / 5</div></div>
+      <div class="cs"><div class="cs-lbl">Horas normales</div><div class="cs-val">8–10h/sem</div></div>
+      <div class="cs"><div class="cs-lbl">Horas sem bomba</div><div class="cs-val" style="color:var(--cred)">15–18h/sem</div></div>
+      <div class="cs"><div class="cs-lbl">Próxima bomba</div><div class="cs-val" style="color:var(--cred)">Sem 11 — Teórico 3 + Práctico 3</div></div>
+      <div class="cs"><div class="cs-lbl">Fórmula</div><div class="cs-val" style="font-size:8.5px">25%EP1 + 20%EVP + 30%EP2 + 25%EVF</div></div>
+      <div class="cs"><div class="cs-lbl">Sem 10 tema</div><div class="cs-val">Osmolaridad, ADH, sed</div></div>
+      <div class="redflag">⚠ Prácticas de aula por sorteo aleatorio. Sin preparar = nota directa perdida.</div>
+    </div>
+    <div class="cc" style="border-color:rgba(247,208,112,.22)">
+      <div class="cc-hdr"><div class="cc-dot" style="background:var(--yellow)"></div><div class="cc-name">Bioquímica Médica</div><div class="cc-cred">5 créditos</div></div>
+      <div class="cs"><div class="cs-lbl">Memoria (1–5)</div><div class="cs-val" style="color:var(--orange)">4 / 5</div></div>
+      <div class="cs"><div class="cs-lbl">Comprensión</div><div class="cs-val" style="color:var(--cred)">5 / 5</div></div>
+      <div class="cs"><div class="cs-lbl">Horas normales</div><div class="cs-val">10–12h/sem</div></div>
+      <div class="cs"><div class="cs-lbl">Horas sem bomba</div><div class="cs-val" style="color:var(--cred)">18–22h/sem</div></div>
+      <div class="cs"><div class="cs-lbl">Próxima bomba</div><div class="cs-val">Sem 12 — ES2 + lab + caso cetoacidosis</div></div>
+      <div class="cs"><div class="cs-lbl">Fórmula</div><div class="cs-val" style="font-size:8.5px">25%EP1 + 20%EVP + 30%EP2 + 25%EVF</div></div>
+      <div class="redflag">⚠ Informe de lab se sube el mismo día. Sin margen. Hacerlo en partes: mañana mié + gap + noche.</div>
+    </div>
+    <div class="cc" style="border-color:rgba(126,184,247,.22)">
+      <div class="cc-hdr"><div class="cc-dot" style="background:var(--blue)"></div><div class="cc-name">Biología Molecular</div><div class="cc-cred">4 créditos</div></div>
+      <div class="cs"><div class="cs-lbl">Memoria (1–5)</div><div class="cs-val" style="color:var(--orange)">4 / 5</div></div>
+      <div class="cs"><div class="cs-lbl">Comprensión</div><div class="cs-val" style="color:var(--cred)">5 / 5</div></div>
+      <div class="cs"><div class="cs-lbl">Horas normales</div><div class="cs-val">8–10h/sem</div></div>
+      <div class="cs"><div class="cs-lbl">Horas sem bomba</div><div class="cs-val" style="color:var(--cred)">15–18h/sem</div></div>
+      <div class="cs"><div class="cs-lbl">Próxima bomba</div><div class="cs-val">Sem 12 — Examen Unidad 3</div></div>
+      <div class="cs"><div class="cs-lbl">Fórmula</div><div class="cs-val" style="font-size:8.5px">25%EP1 + 20%EVP + 30%EP2 + 25%EVF</div></div>
+      <div class="redflag">⚠ TIN se sustenta 2 veces (sem 7 y 15). Empezarlo tarde = 25% EP1 y EP2 en riesgo simultáneo.</div>
+    </div>
+    <div class="cc" style="border-color:rgba(242,112,112,.22)">
+      <div class="cc-hdr"><div class="cc-dot" style="background:var(--cred)"></div><div class="cc-name">Casos Integradores I</div><div class="cc-cred">2 créditos</div></div>
+      <div class="cs"><div class="cs-lbl">Memoria (1–5)</div><div class="cs-val" style="color:var(--cred)">5 / 5</div></div>
+      <div class="cs"><div class="cs-lbl">Comprensión</div><div class="cs-val" style="color:var(--cred)">5 / 5</div></div>
+      <div class="cs"><div class="cs-lbl">Horas normales</div><div class="cs-val">6–8h/sem</div></div>
+      <div class="cs"><div class="cs-lbl">Próxima bomba</div><div class="cs-val">Sem 11 — EU3</div></div>
+      <div class="cs"><div class="cs-lbl">Fórmula</div><div class="cs-val" style="font-size:8.5px">CA (60%) + EU (40%) por período</div></div>
+      <div class="redflag">⚠ Integra Locomotor + Excretor + BioMol. Si vas mal en los 3, aquí también. El CA del martes no se recupera.</div>
+    </div>
+    <div class="cc" style="border-color:rgba(95,212,176,.22)">
+      <div class="cc-hdr"><div class="cc-dot" style="background:var(--teal)"></div><div class="cc-name">Comunicación I</div><div class="cc-cred">4 créditos</div></div>
+      <div class="cs"><div class="cs-lbl">Memoria (1–5)</div><div class="cs-val" style="color:var(--teal)">2 / 5</div></div>
+      <div class="cs"><div class="cs-lbl">Comprensión</div><div class="cs-val">3 / 5</div></div>
+      <div class="cs"><div class="cs-lbl">Horas normales</div><div class="cs-val">4–6h/sem</div></div>
+      <div class="cs"><div class="cs-lbl">Próxima bomba</div><div class="cs-val">Sem 13 — entrega informe (Turnitin)</div></div>
+      <div class="cs"><div class="cs-lbl">Fórmula</div><div class="cs-val" style="font-size:8.5px">20%EP1 + 20%EP2 + 30%EP + 30%EF</div></div>
+      <div class="redflag">⚠ Informe vale 60% EP2. Viernes y domingo son los días fijos para avanzarlo. No leer lecturas Club = cuestionario imposible.</div>
+    </div>
+  </div>
+</div>
+
+</div><!-- /page -->
+
+<script>
+function show(id) {
+  document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  const map = { overview:0, lunes:1, martes:2, miercoles:3, jueves:4, viernes:5, sabado:6, domingo:7, silabos:8 };
+  const btns = document.querySelectorAll('.nav-btn');
+  const idx = map[id];
+  if (btns[idx]) {
+    btns[idx].classList.add('active');
+    // Scroll the active nav button into view on mobile
+    btns[idx].scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
+  }
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+// Keyboard navigation: left/right arrow to switch days
+const order = ['overview','lunes','martes','miercoles','jueves','viernes','sabado','domingo','silabos'];
+let currentIdx = 0;
+document.addEventListener('keydown', (e) => {
+  if (e.key === 'ArrowRight') {
+    currentIdx = Math.min(currentIdx + 1, order.length - 1);
+    show(order[currentIdx]);
+  } else if (e.key === 'ArrowLeft') {
+    currentIdx = Math.max(currentIdx - 1, 0);
+    show(order[currentIdx]);
+  }
+});
+
+
+// ══ PWA: Service Worker (cache offline) ══════════
+const SW_VERSION = 'horario-v3';
+if ('serviceWorker' in navigator) {
+  // Inline service worker as a blob
+  const swCode = `
+    const CACHE = '${SW_VERSION}';
+    const ASSETS = [self.location.href];
+    self.addEventListener('install', e => {
+      e.waitUntil(caches.open(CACHE).then(c => c.addAll(ASSETS)).then(() => self.skipWaiting()));
+    });
+    self.addEventListener('activate', e => {
+      e.waitUntil(caches.keys().then(keys => Promise.all(keys.filter(k => k !== CACHE).map(k => caches.delete(k)))).then(() => self.clients.claim()));
+    });
+    self.addEventListener('fetch', e => {
+      e.respondWith(caches.match(e.request).then(r => r || fetch(e.request)));
+    });
+  `;
+  const blob = new Blob([swCode], { type: 'application/javascript' });
+  const swUrl = URL.createObjectURL(blob);
+  navigator.serviceWorker.register(swUrl).catch(() => {});
+}
+
+// ══ PWA: Install prompt ══════════════════════════
+let deferredPrompt = null;
+const banner = document.getElementById('pwa-banner');
+const iosHint = document.getElementById('ios-hint');
+const installBtn = document.getElementById('pwa-install-btn');
+const closeBtn = document.getElementById('pwa-close');
+const iosClose = document.getElementById('ios-close');
+
+// Check if already installed
+const isStandalone = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone;
+const dismissed = sessionStorage.getItem('pwa-dismissed');
+
+if (!isStandalone && !dismissed) {
+  const isIOS = /iphone|ipad|ipod/i.test(navigator.userAgent) && !window.MSStream;
+
+  if (isIOS && !window.navigator.standalone) {
+    // Show iOS instructions after 3s
+    setTimeout(() => { iosHint.classList.remove('hidden'); }, 3000);
+  } else {
+    // Android / Desktop: wait for beforeinstallprompt
+    window.addEventListener('beforeinstallprompt', (e) => {
+      e.preventDefault();
+      deferredPrompt = e;
+      setTimeout(() => { banner.classList.remove('hidden'); }, 2000);
+    });
+  }
+}
+
+if (installBtn) {
+  installBtn.addEventListener('click', async () => {
+    if (!deferredPrompt) return;
+    deferredPrompt.prompt();
+    const { outcome } = await deferredPrompt.userChoice;
+    deferredPrompt = null;
+    banner.classList.add('hidden');
+  });
+}
+if (closeBtn) {
+  closeBtn.addEventListener('click', () => {
+    banner.classList.add('hidden');
+    sessionStorage.setItem('pwa-dismissed', '1');
+  });
+}
+if (iosClose) {
+  iosClose.addEventListener('click', () => {
+    iosHint.classList.add('hidden');
+    sessionStorage.setItem('pwa-dismissed', '1');
+  });
+}
+
+</script>
+
+<!-- ══ PWA INSTALL BANNER ═══════════════════ -->
+<div id="pwa-banner" class="hidden">
+  <div class="pwa-icon">🕷️</div>
+  <div class="pwa-text">
+    <strong>Instalar como App</strong>
+    <span>Sin internet · Ícono en pantalla</span>
+  </div>
+  <button class="pwa-install-btn" id="pwa-install-btn">INSTALAR</button>
+  <button class="pwa-close" id="pwa-close">✕</button>
+</div>
+
+<div id="ios-hint" class="hidden">
+  <p>Para instalar en iPhone:<br>
+  Toca <strong>Compartir</strong> (⬆️) → <strong>"Agregar a pantalla de inicio"</strong></p>
+  <button class="ios-close" id="ios-close">Entendido</button>
+</div>
+
+</body>
+</html>
