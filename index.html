@@ -1742,7 +1742,7 @@ document.addEventListener('keydown', (e) => {
 
 
 // ══ PWA: Service Worker (cache offline) ══════════
-const SW_VERSION = 'horario-v3';
+const SW_VERSION = 'horario-v5-semana-auto';
 if ('serviceWorker' in navigator) {
   // Inline service worker as a blob
   const swCode = `
@@ -1907,6 +1907,9 @@ function actualizarBloque(id, info) {
 
 // Ejecutar al cargar
 document.addEventListener('DOMContentLoaded', actualizarSemana);
+if (document.readyState === 'complete' || document.readyState === 'interactive') {
+  actualizarSemana();
+}
 
 </script>
 </body>
