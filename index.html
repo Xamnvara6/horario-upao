@@ -878,6 +878,52 @@ body::before {
   padding: 5px 14px; cursor: pointer;
 }
 
+
+/* ── SISTEMA SEMANA AUTOMÁTICA ── */
+#semana-banner {
+  display: flex;
+  align-items: center;
+  gap: .8rem;
+  background: linear-gradient(135deg, var(--red) 0%, #8b1a10 100%);
+  border-radius: 12px;
+  padding: .7rem 1.2rem;
+  margin: 0 0 1.2rem 0;
+  box-shadow: 0 4px 16px rgba(200,57,43,.35);
+}
+.sem-num {
+  font-size: 1.05rem;
+  font-weight: 800;
+  color: #fff;
+  letter-spacing: .08em;
+  white-space: nowrap;
+}
+.sem-fechas {
+  font-size: .82rem;
+  color: rgba(255,255,255,.78);
+}
+.sw-tema {
+  font-size: .92rem;
+  font-weight: 700;
+  color: var(--tx-h);
+  margin-bottom: .22rem;
+}
+.sw-detalle {
+  font-size: .78rem;
+  color: var(--tx-m);
+  line-height: 1.45;
+}
+.sw-eval {
+  margin-top: .4rem;
+  font-size: .76rem;
+  font-weight: 600;
+  color: var(--yellow);
+  background: rgba(255,200,60,.1);
+  border-radius: 6px;
+  padding: .22rem .5rem;
+  display: inline-block;
+}
+.sw-alerta { border-left-color: var(--yellow) !important; }
+
 </style>
 </head>
 <body>
@@ -1082,6 +1128,8 @@ body::before {
 <div id="lunes" class="panel">
   <div class="day-hdr">
     <div class="day-title">Lunes <span style="color:var(--tx-m);font-weight:400;font-size:.9rem">— Clases 9:45am–7:45pm</span></div>
+    <div id="semana-banner"><span class="sem-num">SEMANA —</span><span class="sem-fechas">Cargando...</span></div>
+
     <div class="day-sub">
       <span class="dtag dtag-mid">4.5h ESTUDIO+TAREAS</span>
       <span class="dtag dtag-sport">🏃 30min</span>
@@ -1107,12 +1155,12 @@ body::before {
     </div>
     <div class="block b-study">
       <div class="b-time">5:50 – 6:40</div><div class="b-icon">🦴</div>
-      <div class="b-body"><div class="b-label"><span class="cdot" style="background:var(--purple)"></span>Repaso Locomotor — estructuras semana <span class="btag btag-e">ESTUDIO</span><span class="abadge ab-red">PRETEST MAR LAB</span></div><div class="b-note">50min pomodoro. Atlas, piezas anotadas. Lo que ves hoy en teoría entra al pretest del martes en lab.</div></div>
+      <div class="b-body"><div class="b-label"><span class="cdot" style="background:var(--purple)"></span>Repaso Locomotor — tema semana actual <span class="btag btag-e">ESTUDIO</span><span class="abadge ab-red">PRETEST MAR LAB</span></div><div id="sw-locomotor" class="b-note">Cargando tema...</div></div>
     </div>
     <div class="block b-transit"><div class="b-time">6:40 – 6:50</div><div class="b-icon">–</div><div class="b-body"><div class="b-label">Descanso</div></div></div>
     <div class="block b-study">
       <div class="b-time">6:50 – 7:40</div><div class="b-icon">🔬</div>
-      <div class="b-body"><div class="b-label"><span class="cdot" style="background:var(--blue)"></span>Biología Molecular — lectura previa lab martes <span class="btag btag-e">ESTUDIO</span></div><div class="b-note">50min. Lectura asignada antes del lab 7am del martes. No llegar sin leer.</div></div>
+      <div class="b-body"><div class="b-label"><span class="cdot" style="background:var(--blue)"></span>Biología Molecular — tema semana actual <span class="btag btag-e">ESTUDIO</span></div><div id="sw-biomol" class="b-note">Cargando tema...</div></div>
     </div>
     <div class="block b-transit"><div class="b-time">7:40 – 7:50</div><div class="b-icon">–</div><div class="b-body"><div class="b-label">Descanso</div></div></div>
     <div class="block b-tarea">
@@ -1146,7 +1194,7 @@ body::before {
     <div class="block b-transit"><div class="b-time">2:50 – 3:00</div><div class="b-icon">–</div><div class="b-body"><div class="b-label">Descanso</div></div></div>
     <div class="block b-study">
       <div class="b-time">3:00 – 3:50</div><div class="b-icon">📄</div>
-      <div class="b-body"><div class="b-label"><span class="cdot" style="background:var(--blue)"></span>Avance TIN Biología Molecular <span class="btag btag-e">ESTUDIO</span></div><div class="b-note">50min. Artículo de revisión continuo. Sustenta sem 15 y sem 7. No se improvisa.</div></div>
+      <div class="b-body"><div class="b-label"><span class="cdot" style="background:var(--blue)"></span>Avance TIN Biología Molecular — avance semana actual <span class="btag btag-e">ESTUDIO</span></div><div id="sw-tin-biomol" class="b-note">Cargando tema...</div></div>
     </div>
     <div class="block b-gap">
       <div class="b-time">3:50 – 4:10</div><div class="b-icon">🛋️</div>
@@ -1237,6 +1285,10 @@ body::before {
 <div id="miercoles" class="panel">
   <div class="day-hdr">
     <div class="day-title">Miércoles <span style="color:var(--tx-m);font-weight:400;font-size:.9rem">— Lab + Comunicación + Informe</span></div>
+    <div id="semana-banner"><span class="sem-num">SEMANA —</span><span class="sem-fechas">Cargando...</span></div>
+
+    <div id="semana-banner"><span class="sem-num">SEMANA —</span><span class="sem-fechas">Cargando...</span></div>
+
     <div class="day-sub">
       <span class="dtag dtag-mid">4h ESTUDIO+TAREAS</span>
       <span class="dtag dtag-sport">🏃 30min</span>
@@ -1257,7 +1309,7 @@ body::before {
     <div class="block b-exercise"><div class="b-time">6:30 – 7:00</div><div class="b-icon">🏃</div><div class="b-body"><div class="b-label">EJERCICIO <span class="btag btag-s">EJERCICIO</span></div><div class="b-note">30min en casa. Cardio o fuerza corta. Activa el cuerpo antes del día de laboratorio.</div></div></div>
     <div class="block b-study">
       <div class="b-time">7:00 – 7:50</div><div class="b-icon">📖</div>
-      <div class="b-body"><div class="b-label"><span class="cdot" style="background:var(--yellow)"></span>Estudio previo guía Bioquímica <span class="btag btag-e">ESTUDIO</span><span class="abadge ab-ylw">PRIORIDAD</span></div><div class="b-note">50min. Leer la guía del tema que toca hoy en el laboratorio. Las preguntas del lab salen de la misma guía y del tema trabajado. Llegar sabiendo el procedimiento y los fundamentos.</div></div>
+      <div class="b-body"><div class="b-label"><span class="cdot" style="background:var(--yellow)"></span>Estudio previo guía Bioquímica <span class="btag btag-e">ESTUDIO</span><span class="abadge ab-ylw">PRIORIDAD</span></div><div id="sw-bioquimica" class="b-note">Cargando tema del lab de esta semana...</div></div>
     </div>
     <div class="block b-transit"><div class="b-time">7:50 – 8:00</div><div class="b-icon">🍳</div><div class="b-body"><div class="b-label">Desayuno rápido + prep</div></div></div>
     <div class="block b-transit"><div class="b-time">8:00 – 9:45</div><div class="b-icon">🚐</div><div class="b-body"><div class="b-label">Traslado + buffer llegada UPAO</div></div></div>
@@ -1436,6 +1488,12 @@ body::before {
 <div id="sabado" class="panel">
   <div class="day-hdr">
     <div class="day-title">Sábado <span style="color:var(--tx-m);font-weight:400;font-size:.9rem">— 2 prácticas + 1 laboratorio evaluados · 5h en gaps</span></div>
+    <div id="semana-banner"><span class="sem-num">SEMANA —</span><span class="sem-fechas">Cargando...</span></div>
+
+    <div id="semana-banner"><span class="sem-num">SEMANA —</span><span class="sem-fechas">Cargando...</span></div>
+
+    <div id="semana-banner"><span class="sem-num">SEMANA —</span><span class="sem-fechas">Cargando...</span></div>
+
     <div class="day-sub">
       <span class="dtag dtag-high">EVALUADO</span>
       <span>Sale 7:10am · Llega ~10:45pm · Sin ejercicio</span>
@@ -1472,7 +1530,7 @@ body::before {
     <div class="block b-gap"><div class="b-time">11:25 – 12:15</div><div class="b-icon">🍽️</div><div class="b-body"><div class="b-label">Almuerzo + descanso</div><div class="b-note">Comer bien. La tarde tiene 2 prácticas más.</div></div></div>
     <div class="block b-study">
       <div class="b-time">12:15 – 1:15</div><div class="b-icon">🫘</div>
-      <div class="b-body"><div class="b-label"><span class="cdot" style="background:var(--orange)"></span>Repaso Excretor — práctica 2:20pm <span class="btag btag-e">ESTUDIO</span></div><div class="b-note">1h. Post-test + caso clínico. Repasar el tema semanal y preguntas tipo.</div></div>
+      <div class="b-body"><div class="b-label"><span class="cdot" style="background:var(--orange)"></span>Repaso Excretor — tema semana actual <span class="btag btag-e">ESTUDIO</span></div><div id="sw-excretor" class="b-note">Cargando tema...</div></div>
     </div>
     <div class="block b-study">
       <div class="b-time">1:15 – 2:15</div><div class="b-icon">🦴</div>
@@ -1576,6 +1634,8 @@ body::before {
 <div id="silabos" class="panel">
   <div class="day-hdr">
     <div class="day-title">Sílabos <span style="color:var(--tx-m);font-weight:400;font-size:.9rem">— 6 cursos activos · Sem 10/17</span></div>
+    <div id="semana-banner"><span class="sem-num">SEMANA —</span><span class="sem-fechas">Cargando...</span></div>
+
   </div>
   <div class="syl-grid">
     <div class="cc" style="border-color:rgba(180,138,247,.22)">
@@ -1764,5 +1824,83 @@ if (iosClose) {
   <button class="ios-close" id="ios-close">Entendido</button>
 </div>
 
+<script>
+
+// ══════════════════════════════════════════
+//  SISTEMA DE SEMANA AUTOMÁTICA
+//  Generado automáticamente desde sílabos
+// ══════════════════════════════════════════
+
+const SEM1_START = new Date('2026-03-30'); // Lunes semana 1
+
+function getSemanaActual() {
+  const hoy = new Date();
+  hoy.setHours(0,0,0,0);
+  const diff = Math.floor((hoy - SEM1_START) / (7 * 24 * 60 * 60 * 1000));
+  const sem = diff + 1;
+  return Math.min(Math.max(sem, 1), 16);
+}
+
+const SEMANAS = {
+  1:  { locomotor: { tema:"Generalidades Anatomía", detalle:"Embriología esqueleto axial, histología ósea, planos y ejes, posición anatómica", eval:"Práctica oral lab + seminario clínico" }, excretor: { tema:"Embriología renal", detalle:"Malformaciones congénitas, desarrollo renal", eval:"Post-test lab + caso clínico" }, biomol: { tema:"Macromoléculas", detalle:"Aminoácidos, nucleótidos, monosacáridos, estructura proteica, ácidos nucleicos", eval:null }, bioquimica: { tema:"Introducción y Enzimología", detalle:"Biomoléculas, bioelementos, enzimas, cofactores, cinética enzimática", eval:null } },
+  2:  { locomotor: { tema:"Articulaciones y Vía Motora", detalle:"Histología cartílago fibroso, articulaciones, vía movimiento voluntario, palancas", eval:"Pre-test (sem 1-2) + práctica oral + seminario" }, excretor: { tema:"Histología renal", detalle:"Nefronas, intersticio, cálices, pelvis, uréteres, vejiga", eval:"Post-test lab + caso clínico" }, biomol: { tema:"Catálisis Enzimática", detalle:"Interacciones intermoleculares, mecanismos de catálisis, cofactores, regulación enzimática", eval:null }, bioquimica: { tema:"Regulación enzimática y Bioenergética", detalle:"Regulación alostérica y covalente, isoenzimas, marcadores, mitocondria, cadena respiratoria", eval:null } },
+  3:  { locomotor: { tema:"Cráneo y Cara", detalle:"Histología muscular, huesos cráneo (bóveda/base/orificios), cara, senos paranasales, cráneo fetal", eval:"⚠️ Pre-test + FORMATIVO 1 + práctica oral" }, excretor: { tema:"Anatomía renal", detalle:"Anatomía riñones, uréteres, vejiga", eval:"⚠️ EXAMEN TEÓRICO 1 + PRÁCTICO 1 (sem 1-3)" }, biomol: { tema:"Ácidos Nucleicos y Genoma", detalle:"Estructura ADN/ARN, organización genoma, cromatina, genómica estructural", eval:null }, bioquimica: { tema:"Fosforilación oxidativa", detalle:"Ciclo de Krebs, P450, metabolismo basal, ejercicio", eval:"⚠️ Evaluación semanal 1" } },
+  4:  { locomotor: { tema:"Columna y Miembro Superior", detalle:"Columna vertebral, vértebras cervicales a coxígeas, húmero, cúbito, radio, carpo, falanges", eval:"Pre-test + práctica oral + seminario" }, excretor: { tema:"Vascularización renal", detalle:"Vascularización e inervación renal, uréteres y vejiga", eval:"Post-test lab + caso clínico" }, biomol: { tema:"Replicación y Reparación del ADN", detalle:"Flujo de información genética, replicación del ADN, reparación y recombinación", eval:"⚠️ EXAMEN UNIDAD 1 (sem 1-3) + lab cuantificación ADN" }, bioquimica: { tema:"Proteínas y Aminoácidos", detalle:"Digestión, proteínas plasmáticas, transaminación, desaminación, descarboxilación", eval:null } },
+  5:  { locomotor: { tema:"Pelvis y Miembro Inferior", detalle:"Pelvis ósea, sacroiliaca, sínfisis, fémur, tibia, peroné, pie, arcos plantares", eval:"Pre-test + práctica oral + seminario" }, excretor: { tema:"Transporte y Balance Hídrico", detalle:"Transporte de membranas, balance hídrico, compartimentos corporales", eval:"Post-test lab + caso clínico" }, biomol: { tema:"Transcripción", detalle:"Síntesis ARNm, transcripción en bacterias y eucariotas, procesamiento ARNm, tipos de ARN funcional", eval:null }, bioquimica: { tema:"Porfirinas y compuestos nitrogenados", detalle:"Síntesis/degradación Hem, hemoglobina, bilirrubina, porfirias, ictericia, neurotransmisores", eval:null } },
+  6:  { locomotor: { tema:"Miembro Superior Muscular", detalle:"Relieves osteomusculares, venas cefálica/basílica, músculos brazo/antebrazo, plexo braquial, túnel carpiano, pulsos", eval:"⚠️ Pre-test + FORMATIVO 2 + práctica oral" }, excretor: { tema:"Filtrado Glomerular", detalle:"Filtrado glomerular, flujo sanguíneo renal, autorregulación, pruebas TFG", eval:"⚠️ EXAMEN TEÓRICO 2 (cubre sem 4-5-6)" }, biomol: { tema:"Traducción", detalle:"Decodificación ARNm, síntesis proteica en ribosomas, procesamiento y regulación proteica", eval:"⚠️ Examen práctica EPR1 (individual)" }, bioquimica: { tema:"Nucleótidos y Ácidos Nucleicos", detalle:"Síntesis y catabolismo de nucleótidos, gota/hiperuricemia, DNA/RNA, mutaciones", eval:null } },
+  7:  { locomotor: { tema:"Mano y Prensión", detalle:"Músculos intrínsecos (tenar, hipotenar, lumbricales, interóseos), tipos de prensión, secuelas lesiones nervios mediano/cubital/radial", eval:"Pre-test + práctica oral + seminario" }, excretor: { tema:"Reabsorción y Secreción Tubular", detalle:"Mecanismos de reabsorción y secreción en túbulos renales", eval:"⚠️ EXAMEN PRÁCTICO 2 (cubre sem 4-5-6-7)" }, biomol: { tema:"Regulación de la Expresión Génica", detalle:"Regulación en procariotas y eucariotas, epigenética, control post-transcripcional, expresión inducible", eval:"⚠️ EXAMEN UNIDAD 2 (sem 4-6) + SUSTENTACIÓN PARCIAL TIN" }, bioquimica: { tema:"Carbohidratos: digestión y glucógeno", detalle:"Carbohidratos dieta, digestión/absorción glucosa, glucogenosis", eval:null } },
+  8:  { locomotor: { tema:"🔴 EVALUACIÓN PARCIAL", detalle:"Cubre U1-U2 (sem 1-7): cráneo, columna, miembro superior e inferior, articulaciones", eval:"🔴 Teórico 20 MCQ + Práctico con cadáveres/esqueletos/maquetas" }, excretor: { tema:"🔴 EXAMEN PARCIAL", detalle:"Cubre todo U1 (sem 1-7)", eval:"🔴 EVP — 40 preguntas, 50 min" }, biomol: { tema:"🔴 EVALUACIÓN PARCIAL", detalle:"Cubre sem 1-7 (U1 y U2 completos)", eval:"🔴 EVP — mínimo 20 preguntas" }, bioquimica: { tema:"🔴 EVALUACIÓN PARCIAL", detalle:"Cubre U1-U2 (sem 1-7)", eval:"🔴 EVP — 20 preguntas, 4 alternativas" } },
+  9:  { locomotor: { tema:"Bipedestación y Cadera", detalle:"Venas safenas, pulsos femoral/poplíteo/pedio, región glútea, muslo, articulación coxofemoral, Triángulo de Scarpa", eval:"Pre-test + práctica oral + seminario" }, excretor: { tema:"Formación de orina y Contracorriente", detalle:"Formación orina diluida/concentrada, mecanismo contracorriente, asa de Henle", eval:"Post-test lab + caso clínico" }, biomol: { tema:"Mutaciones y Polimorfismos", detalle:"Causas y clasificación de mutaciones, mutágenos, teratógenos, polimorfismos, huella genética", eval:null }, bioquimica: { tema:"Glucólisis, Gluconeogénesis y Diabetes", detalle:"Vía de pentosas, vía glucuronato, DM tipo 1 y 2, diabetes gestacional", eval:null } },
+  10: { locomotor: { tema:"Pierna y Pie", detalle:"Músculos pierna y pie, articulaciones rodilla/tobillo/pie, ligamentos cruzados, meniscos, pie plano, pie equinovaro", eval:"Pre-test + práctica oral + seminario" }, excretor: { tema:"Osmolaridad y Sistema ADH", detalle:"Osmolaridad plasmática, sistema ADH, regulación de la sed", eval:"Post-test lab + caso clínico" }, biomol: { tema:"Identificación de Moléculas Biológicas", detalle:"Extracción, cuantificación, separación, hibridación y amplificación de ácidos nucleicos; PCR", eval:null }, bioquimica: { tema:"Lípidos: digestión, transporte y síntesis", detalle:"Digestión/absorción lipídica, ácidos grasos esenciales, eicosanoides, TAG, surfactante", eval:"⚠️ Evaluación semanal 3" } },
+  11: { locomotor: { tema:"Mímica y Masticación", detalle:"Músculos mímica (VII par), masticación (temporal, masetero, pterigoideos, V par), músculos cuello, región suprahioidea", eval:"⚠️ Pre-test + FORMATIVO 3 + práctica oral" }, excretor: { tema:"Regulación de Potasio", detalle:"Regulación de potasio (LEC, LIC, excreción y secreción tubular)", eval:"⚠️ EXAMEN TEÓRICO 3 + PRÁCTICO 3 (cubre sem 9-10-11)" }, biomol: { tema:"Manipulación de Ácidos Nucleicos", detalle:"ADN recombinante, enzimas de restricción, vectores, edición genómica (CRISPR-Cas, TALEN), terapia génica", eval:null }, bioquimica: { tema:"Lipólisis, β-oxidación y Colesterol", detalle:"Cetogénesis, cetólisis, cetosis, colesterol, aterosclerosis, dislipidemias, tejido adiposo", eval:null } },
+  12: { locomotor: { tema:"Tronco y Respiración", detalle:"Músculos tronco, mecánica respiratoria, focos cardiacos, área cardiaca, axila, drenaje linfático glándula mamaria", eval:"Pre-test + práctica oral + seminario" }, excretor: { tema:"Regulación Ca, P, Mg y eritropoyetina", detalle:"Regulación calcio, fósforo, magnesio y eritropoyetina renal", eval:"Post-test lab + caso clínico" }, biomol: { tema:"Ómicas y Biología de Sistemas", detalle:"Secuenciación Sanger y NGS, genómica, transcriptómica, proteómica, enfermedades monogénicas", eval:"⚠️ EXAMEN UNIDAD 3 (sem 9-11) + lab SNPs bioinformática" }, bioquimica: { tema:"Bioquímica del ejercicio e integración metabólica", detalle:"Contracción muscular, síndrome metabólico, obesidad, integración hígado/tejido adiposo", eval:"⚠️ Evaluación semanal 4 + Actividad RSU" } },
+  13: { locomotor: { tema:"Abdomen y Hernias", detalle:"Músculos/aponeurosis abdomen, trayecto inguinal, hernias inguinales/crurales, diafragma y hernias diafragmáticas", eval:"Pre-test + práctica oral + seminario" }, excretor: { tema:"Equilibrio Ácido-Básico", detalle:"H+, sistemas buffer, regulación respiratoria y renal, acidosis y alcalosis", eval:"Post-test lab + caso clínico" }, biomol: { tema:"Bases Moleculares: Enfermedades Infecciosas", detalle:"Respuesta inmune innata y adaptativa, bases moleculares de infecciones virales/bacterianas/parasitarias, vacunas", eval:null }, bioquimica: { tema:"Agua, minerales y vitaminas", detalle:"Equilibrio hidroelectrolítico, ácido-base, osteoporosis, deshidratación, vitaminas lipo e hidrosolubles", eval:null } },
+  14: { locomotor: { tema:"Fisiología Muscular", detalle:"Contracción general y molecular, isométrica vs isotónica, sumación, tetanización, hipertrofia/atrofia", eval:"⚠️ Pre-test + FORMATIVO 4 + práctica oral" }, excretor: { tema:"Regulación renal: glucosa, urea y aminoácidos", detalle:"Manejo renal de glucosa, urea y aminoácidos, mecanismos de depuración", eval:"Post-test lab + caso clínico" }, biomol: { tema:"Bases Moleculares: Cáncer y Envejecimiento", detalle:"Envejecimiento celular, cáncer, vías oncogénicas, quimioterapias moleculares", eval:"⚠️ Examen práctica EPR2 (individual) + acompañamiento" }, bioquimica: { tema:"Comunicación celular y sistema endocrino", detalle:"Tipos de comunicación celular, hormonas, mecanismos de acción insulina, glucagón y cortisol", eval:"⚠️ Evaluación semanal 5 + Tutoría" } },
+  15: { locomotor: { tema:"Unión Neuromuscular", detalle:"Transmisión impulso nervioso, placa motora, acetilcolina, túbulos transversos, retículo sarcoplasmático, acoplamiento excitación-contracción", eval:"Pre-test + práctica oral + seminario" }, excretor: { tema:"⚠️ EXAMEN TEÓRICO 4 + PRÁCTICO 4", detalle:"Cubre sem 12-13-14: calcio/fósforo, equilibrio ácido-base, manejo renal glucosa/urea", eval:"⚠️ EXAMEN TEÓRICO 4 + EXAMEN PRÁCTICO 4" }, biomol: { tema:"Bases Moleculares: Enfermedades Metabólicas", detalle:"Diabetes mellitus, obesidad, dislipidemias a nivel molecular", eval:"⚠️ EXAMEN UNIDAD 4 (sem 12-14) + SUSTENTACIÓN FINAL TIN" }, bioquimica: { tema:"Cáncer, envejecimiento y glóbulos rojos", detalle:"Bioquímica del cáncer, proto-oncogenes, Alzheimer, eritrocitos", eval:"⚠️ Jornada de Investigación — exposición TI2 ante jurado" } },
+  16: { locomotor: { tema:"🔴 EVALUACIÓN FINAL", detalle:"Cubre U3-U4 (sem 9-15): cadera, pierna/pie, mímica, tronco, abdomen, fisiología y unión neuromuscular", eval:"🔴 Final Teórico 20 MCQ + Práctico con cadáveres/esqueletos" }, excretor: { tema:"🔴 EXAMEN FINAL", detalle:"Cubre todo U2 (sem 9-15)", eval:"🔴 EVF — 40 preguntas, 50 min" }, biomol: { tema:"🔴 EVALUACIÓN FINAL", detalle:"Cubre sem 9-15 (U3 y U4 completos)", eval:"🔴 EVF — mínimo 20 preguntas" }, bioquimica: { tema:"🔴 Examen parcial sem 7-15", detalle:"Cubre semanas 7 a 15", eval:"🔴 Prueba escrita 20 preguntas" } },
+};
+
+function actualizarSemana() {
+  const sem = getSemanaActual();
+  const data = SEMANAS[sem];
+  if (!data) return;
+
+  // Actualizar banner de semana
+  const banner = document.getElementById('semana-banner');
+  if (banner) {
+    const fechaFin = new Date(SEM1_START.getTime() + (sem * 7 - 1) * 24*60*60*1000);
+    const opciones = {day:'numeric', month:'long'};
+    const inicio = new Date(SEM1_START.getTime() + (sem-1)*7*24*60*60*1000);
+    banner.innerHTML = `<span class="sem-num">SEMANA ${sem}</span><span class="sem-fechas">${inicio.toLocaleDateString('es-PE',opciones)} – ${fechaFin.toLocaleDateString('es-PE',opciones)}</span>`;
+  }
+
+  // Actualizar bloques dinámicos
+  actualizarBloque('sw-locomotor', data.locomotor);
+  actualizarBloque('sw-excretor', data.excretor);
+  actualizarBloque('sw-biomol', data.biomol);
+  actualizarBloque('sw-bioquimica', data.bioquimica);
+
+  // Actualizar overview si existe
+  const ovSem = document.querySelectorAll('.ov-sem-num');
+  ovSem.forEach(el => el.textContent = 'SEM ' + sem);
+}
+
+function actualizarBloque(id, info) {
+  const el = document.getElementById(id);
+  if (!el || !info) return;
+  const evalHtml = info.eval
+    ? `<div class="sw-eval">${info.eval}</div>`
+    : '';
+  el.innerHTML = `<div class="sw-tema">${info.tema}</div><div class="sw-detalle">${info.detalle}</div>${evalHtml}`;
+  // Marcar semanas de evaluación
+  if (info.eval && (info.eval.includes('🔴') || info.eval.includes('⚠️'))) {
+    el.closest('.block')?.classList.add('sw-alerta');
+  }
+}
+
+// Ejecutar al cargar
+document.addEventListener('DOMContentLoaded', actualizarSemana);
+
+</script>
 </body>
 </html>
