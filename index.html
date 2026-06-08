@@ -1233,6 +1233,8 @@ body::before {
 <div id="martes" class="panel">
   <div class="day-hdr">
     <div class="day-title" style="color:var(--red-l)">Martes ⚡ <span style="color:var(--tx-m);font-weight:400;font-size:.9rem">— Día más brutal del ciclo</span></div>
+    <div id="semana-banner"><span class="sem-num">SEMANA —</span><span class="sem-fechas">Cargando...</span></div>
+
     <div class="day-sub">
       <span class="dtag dtag-brutal">7:00AM → 9:35PM · 14h35 DE CLASES</span>
       <span>0h estudio · Sin ejercicio · Modo: sobrevivir</span>
@@ -1350,6 +1352,8 @@ body::before {
 <div id="jueves" class="panel">
   <div class="day-hdr">
     <div class="day-title" style="color:var(--teal)">Jueves <span style="color:var(--tx-m);font-weight:400;font-size:.9rem">— Día libre · Jornada completa</span></div>
+    <div id="semana-banner"><span class="sem-num">SEMANA —</span><span class="sem-fechas">Cargando...</span></div>
+
     <div class="day-sub">
       <span class="dtag dtag-free">10.5h ESTUDIO+TAREAS</span>
       <span class="dtag dtag-sport">🏃 1.5h</span>
@@ -1423,6 +1427,8 @@ body::before {
 <div id="viernes" class="panel">
   <div class="day-hdr">
     <div class="day-title" style="color:var(--teal)">Viernes <span style="color:var(--tx-m);font-weight:400;font-size:.9rem">— Día libre · Prep del sábado</span></div>
+    <div id="semana-banner"><span class="sem-num">SEMANA —</span><span class="sem-fechas">Cargando...</span></div>
+
     <div class="day-sub">
       <span class="dtag dtag-free">10.5h ESTUDIO+TAREAS</span>
       <span class="dtag dtag-sport">🏃 1.5h</span>
@@ -1566,6 +1572,8 @@ body::before {
 <div id="domingo" class="panel">
   <div class="day-hdr">
     <div class="day-title" style="color:var(--teal)">Domingo <span style="color:var(--tx-m);font-weight:400;font-size:.9rem">— Día libre · Integración + cierre</span></div>
+    <div id="semana-banner"><span class="sem-num">SEMANA —</span><span class="sem-fechas">Cargando...</span></div>
+
     <div class="day-sub">
       <span class="dtag dtag-free">10.5h ESTUDIO+TAREAS</span>
       <span class="dtag dtag-sport">🏃 1.5h</span>
@@ -1879,6 +1887,7 @@ function actualizarSemana() {
   actualizarBloque('sw-excretor', data.excretor);
   actualizarBloque('sw-biomol', data.biomol);
   actualizarBloque('sw-bioquimica', data.bioquimica);
+  actualizarBloque('sw-tin-biomol', data.biomol);
 
   // Actualizar overview si existe
   const ovSem = document.querySelectorAll('.ov-sem-num');
