@@ -995,8 +995,7 @@ body::before {
   flex-direction: column;
   transform: translateY(100%);
   transition: transform .4s cubic-bezier(.32,.72,0,1);
-  overflow: hidden;
-}
+  }
 #tl-panel.tl-open { transform: translateY(0); }
 
 /* Header del panel */
@@ -1014,12 +1013,14 @@ body::before {
   top: -40px; right: -40px;
   width: 160px; height: 160px;
   background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 160 160'%3E%3Cg stroke='rgba(255,255,255,0.12)' fill='none' stroke-width='1'%3E%3Cline x1='80' y1='0' x2='80' y2='160'/%3E%3Cline x1='0' y1='80' x2='160' y2='80'/%3E%3Cline x1='0' y1='0' x2='160' y2='160'/%3E%3Cline x1='160' y1='0' x2='0' y2='160'/%3E%3Ccircle cx='80' cy='80' r='30'/%3E%3Ccircle cx='80' cy='80' r='60'/%3E%3Ccircle cx='80' cy='80' r='90'/%3E%3C/g%3E%3C/svg%3E") center/cover;
+  pointer-events: none;
 }
 .tl-header-row {
   display: flex;
   align-items: center;
   gap: .8rem;
   position: relative;
+  z-index: 2;
 }
 .tl-spider-icon { width: 32px; height: 32px; flex-shrink:0; }
 .tl-title-wrap { flex: 1; }
@@ -1046,6 +1047,8 @@ body::before {
   transition: background .2s;
   flex-shrink:0;
   -webkit-tap-highlight-color: transparent;
+  position: relative;
+  z-index: 10;
 }
 #tl-close:hover { background: rgba(255,255,255,.28); }
 
