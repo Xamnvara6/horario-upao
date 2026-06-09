@@ -2,7 +2,7 @@
 <html lang="es">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <title>Plan Académico — UPAO</title>
 
 <!-- PWA Meta -->
@@ -928,8 +928,8 @@ body::before {
 /* ══ TASK LIST SPIDER-MAN ══ */
 #tl-fab {
   position: fixed;
-  bottom: 24px;
-  left: 24px;
+  bottom: max(24px, env(safe-area-inset-bottom, 24px));
+  left: max(24px, env(safe-area-inset-left, 24px));
   width: 62px;
   height: 62px;
   border-radius: 50%;
