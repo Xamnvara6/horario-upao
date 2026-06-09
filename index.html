@@ -924,6 +924,355 @@ body::before {
 }
 .sw-alerta { border-left-color: var(--yellow) !important; }
 
+
+/* ══ TASK LIST SPIDER-MAN ══ */
+#tl-fab {
+  position: fixed;
+  bottom: 24px;
+  left: 24px;
+  width: 62px;
+  height: 62px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #c8392b 0%, #8b1a10 60%, #1a2a6c 100%);
+  border: 2px solid rgba(255,255,255,.18);
+  box-shadow: 0 4px 24px rgba(200,57,43,.55), 0 0 0 0 rgba(200,57,43,.4);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9000;
+  transition: transform .2s cubic-bezier(.34,1.56,.64,1), box-shadow .2s;
+  animation: fab-pulse 3s ease-in-out infinite;
+  -webkit-tap-highlight-color: transparent;
+}
+#tl-fab:hover { transform: scale(1.12); box-shadow: 0 6px 32px rgba(200,57,43,.7), 0 0 0 8px rgba(200,57,43,.15); }
+#tl-fab:active { transform: scale(.94); }
+@keyframes fab-pulse {
+  0%,100% { box-shadow: 0 4px 24px rgba(200,57,43,.55), 0 0 0 0 rgba(200,57,43,.3); }
+  50% { box-shadow: 0 4px 28px rgba(200,57,43,.7), 0 0 0 10px rgba(200,57,43,.08); }
+}
+#tl-fab svg { width:34px; height:34px; }
+
+/* Badge contador */
+#tl-badge {
+  position: absolute;
+  top:-4px; right:-4px;
+  min-width:20px; height:20px;
+  background:#e8c43c;
+  color:#111;
+  font-size:.7rem;
+  font-weight:800;
+  border-radius:10px;
+  display:flex; align-items:center; justify-content:center;
+  padding: 0 4px;
+  border: 2px solid #080b12;
+  display: none;
+}
+
+/* Overlay fondo */
+#tl-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(5,8,18,.75);
+  backdrop-filter: blur(4px);
+  z-index: 9100;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity .3s ease;
+}
+#tl-overlay.tl-open { opacity: 1; pointer-events: all; }
+
+/* Panel principal */
+#tl-panel {
+  position: fixed;
+  bottom: 0; left: 0; right: 0;
+  max-height: 88vh;
+  background: #0d1021;
+  border-radius: 24px 24px 0 0;
+  border-top: 2px solid rgba(200,57,43,.4);
+  z-index: 9200;
+  display: flex;
+  flex-direction: column;
+  transform: translateY(100%);
+  transition: transform .4s cubic-bezier(.32,.72,0,1);
+  overflow: hidden;
+}
+#tl-panel.tl-open { transform: translateY(0); }
+
+/* Header del panel */
+#tl-header {
+  background: linear-gradient(135deg, #c8392b 0%, #8b1a10 50%, #1a2a6c 100%);
+  padding: 1rem 1.2rem .9rem;
+  position: relative;
+  flex-shrink: 0;
+  overflow: hidden;
+}
+/* Telaraña decorativa en el header */
+#tl-header::before {
+  content: '';
+  position: absolute;
+  top: -40px; right: -40px;
+  width: 160px; height: 160px;
+  background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 160 160'%3E%3Cg stroke='rgba(255,255,255,0.12)' fill='none' stroke-width='1'%3E%3Cline x1='80' y1='0' x2='80' y2='160'/%3E%3Cline x1='0' y1='80' x2='160' y2='80'/%3E%3Cline x1='0' y1='0' x2='160' y2='160'/%3E%3Cline x1='160' y1='0' x2='0' y2='160'/%3E%3Ccircle cx='80' cy='80' r='30'/%3E%3Ccircle cx='80' cy='80' r='60'/%3E%3Ccircle cx='80' cy='80' r='90'/%3E%3C/g%3E%3C/svg%3E") center/cover;
+}
+.tl-header-row {
+  display: flex;
+  align-items: center;
+  gap: .8rem;
+  position: relative;
+}
+.tl-spider-icon { width: 32px; height: 32px; flex-shrink:0; }
+.tl-title-wrap { flex: 1; }
+.tl-title {
+  font-size: 1.05rem;
+  font-weight: 800;
+  color: #fff;
+  letter-spacing: .03em;
+}
+.tl-subtitle {
+  font-size: .75rem;
+  color: rgba(255,255,255,.7);
+  margin-top: .1rem;
+}
+#tl-close {
+  width: 34px; height: 34px;
+  border-radius: 50%;
+  background: rgba(255,255,255,.15);
+  border: none;
+  color: #fff;
+  font-size: 1.1rem;
+  cursor: pointer;
+  display: flex; align-items:center; justify-content:center;
+  transition: background .2s;
+  flex-shrink:0;
+  -webkit-tap-highlight-color: transparent;
+}
+#tl-close:hover { background: rgba(255,255,255,.28); }
+
+/* Barra progreso */
+#tl-progress-bar-wrap {
+  background: rgba(255,255,255,.12);
+  height: 4px;
+  border-radius: 2px;
+  margin-top: .7rem;
+  overflow: hidden;
+  position: relative;
+}
+#tl-progress-bar {
+  height: 100%;
+  background: linear-gradient(90deg, #e8c43c, #f0a030);
+  border-radius: 2px;
+  transition: width .5s ease;
+  width: 0%;
+}
+.tl-progress-txt {
+  font-size: .72rem;
+  color: rgba(255,255,255,.65);
+  margin-top: .35rem;
+}
+
+/* Tabs de días */
+#tl-tabs {
+  display: flex;
+  overflow-x: auto;
+  gap: .4rem;
+  padding: .6rem .9rem;
+  background: #0a0e1a;
+  border-bottom: 1px solid rgba(255,255,255,.07);
+  flex-shrink: 0;
+  scrollbar-width: none;
+}
+#tl-tabs::-webkit-scrollbar { display:none; }
+.tl-tab {
+  flex-shrink: 0;
+  padding: .35rem .75rem;
+  border-radius: 20px;
+  font-size: .75rem;
+  font-weight: 600;
+  color: rgba(255,255,255,.5);
+  background: rgba(255,255,255,.06);
+  border: 1.5px solid transparent;
+  cursor: pointer;
+  transition: all .2s;
+  -webkit-tap-highlight-color: transparent;
+  white-space: nowrap;
+}
+.tl-tab:hover { color: rgba(255,255,255,.8); background: rgba(255,255,255,.1); }
+.tl-tab.active {
+  color: #fff;
+  background: rgba(200,57,43,.25);
+  border-color: #c8392b;
+}
+.tl-tab.today {
+  color: #e8c43c;
+  border-color: rgba(232,196,60,.4);
+}
+.tl-tab.today.active {
+  background: rgba(232,196,60,.15);
+  border-color: #e8c43c;
+}
+
+/* Contenedor lista de tareas */
+#tl-list-wrap {
+  flex: 1;
+  overflow-y: auto;
+  padding: .6rem .9rem 5rem;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(200,57,43,.3) transparent;
+}
+
+/* Ítem de tarea */
+.tl-item {
+  display: flex;
+  align-items: flex-start;
+  gap: .7rem;
+  padding: .7rem .9rem;
+  border-radius: 12px;
+  margin-bottom: .4rem;
+  background: rgba(255,255,255,.04);
+  border: 1.5px solid rgba(255,255,255,.07);
+  cursor: pointer;
+  transition: background .15s, opacity .2s;
+  -webkit-tap-highlight-color: transparent;
+  position: relative;
+  overflow: hidden;
+}
+.tl-item::before {
+  content:'';
+  position:absolute;
+  left:0; top:0; bottom:0;
+  width:3px;
+  border-radius:2px 0 0 2px;
+}
+.tl-item.type-class::before  { background: #3b82f6; }
+.tl-item.type-study::before  { background: #c8392b; }
+.tl-item.type-task::before   { background: #e8c43c; }
+.tl-item.type-exercise::before { background: #22c55e; }
+.tl-item.type-sleep::before  { background: #8b5cf6; }
+.tl-item.type-gap::before    { background: rgba(255,255,255,.2); }
+.tl-item:hover { background: rgba(255,255,255,.07); }
+.tl-item.done {
+  opacity: .45;
+}
+.tl-item.done .tl-item-label {
+  text-decoration: line-through;
+  text-decoration-color: rgba(255,255,255,.4);
+}
+
+/* Checkbox personalizado */
+.tl-check {
+  width: 22px; height: 22px;
+  border-radius: 6px;
+  border: 2px solid rgba(255,255,255,.25);
+  flex-shrink: 0;
+  margin-top: 1px;
+  display: flex; align-items:center; justify-content:center;
+  transition: all .2s;
+  background: transparent;
+}
+.tl-item.done .tl-check {
+  background: #c8392b;
+  border-color: #c8392b;
+}
+.tl-item.done .tl-check::after {
+  content: '✓';
+  font-size: .75rem;
+  color: #fff;
+  font-weight: 800;
+}
+
+/* Contenido ítem */
+.tl-item-content { flex:1; min-width:0; }
+.tl-item-time {
+  font-size: .7rem;
+  color: rgba(255,255,255,.45);
+  margin-bottom: .15rem;
+  font-variant-numeric: tabular-nums;
+}
+.tl-item-label {
+  font-size: .88rem;
+  font-weight: 600;
+  color: rgba(255,255,255,.9);
+  line-height: 1.35;
+}
+
+/* Tipo badge pequeño */
+.tl-type-dot {
+  width: 7px; height: 7px;
+  border-radius: 50%;
+  flex-shrink:0;
+  margin-top: 7px;
+}
+.type-class .tl-type-dot  { background:#3b82f6; }
+.type-study .tl-type-dot  { background:#c8392b; }
+.type-task .tl-type-dot   { background:#e8c43c; }
+.type-exercise .tl-type-dot { background:#22c55e; }
+.type-sleep .tl-type-dot  { background:#8b5cf6; }
+.type-gap .tl-type-dot    { background:rgba(255,255,255,.2); }
+
+/* Leyenda de tipos */
+.tl-legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: .4rem .8rem;
+  padding: .5rem .9rem;
+  background: #0a0e1a;
+  border-bottom: 1px solid rgba(255,255,255,.07);
+  flex-shrink: 0;
+}
+.tl-legend-item {
+  display: flex;
+  align-items: center;
+  gap: .3rem;
+  font-size: .65rem;
+  color: rgba(255,255,255,.45);
+}
+.tl-legend-dot {
+  width:8px; height:8px; border-radius:50%; flex-shrink:0;
+}
+
+/* Estado vacío */
+.tl-empty {
+  text-align: center;
+  padding: 3rem 1rem;
+  color: rgba(255,255,255,.35);
+  font-size: .9rem;
+}
+
+/* Boton limpiar completados */
+#tl-clear-btn {
+  display: block;
+  width: calc(100% - 1.8rem);
+  margin: .5rem .9rem;
+  padding: .6rem;
+  background: rgba(200,57,43,.12);
+  border: 1.5px solid rgba(200,57,43,.3);
+  border-radius: 10px;
+  color: rgba(200,57,43,.8);
+  font-size: .8rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all .2s;
+  -webkit-tap-highlight-color: transparent;
+}
+#tl-clear-btn:hover { background: rgba(200,57,43,.2); }
+
+/* Responsive tablet/desktop */
+@media (min-width: 768px) {
+  #tl-panel {
+    bottom: auto; top: 50%; left: 50%;
+    transform: translate(-50%, -40%) scale(.96);
+    width: 480px;
+    max-height: 82vh;
+    border-radius: 20px;
+    border: 1.5px solid rgba(200,57,43,.3);
+  }
+  #tl-panel.tl-open {
+    transform: translate(-50%, -50%) scale(1);
+  }
+  #tl-fab { bottom: 28px; left: 28px; }
+}
+
 </style>
 </head>
 <body>
@@ -1906,11 +2255,269 @@ function actualizarBloque(id, info) {
 }
 
 // Ejecutar al cargar
+
+// ══ TASK LIST SPIDER-MAN ══
+const TAREAS_DIA = {"lunes":[{"time":"5:00","label":"Despertar + aseo rápido","type":"sleep"},{"time":"5:20","label":"Ejercicio — 30 min cardio ligero","type":"exercise"},{"time":"5:50","label":"Repaso Locomotor — tema semana actual","type":"study"},{"time":"6:50","label":"Biología Molecular — tema semana actual","type":"study"},{"time":"7:50","label":"Cuestionario previo Bioquímica","type":"task"},{"time":"8:20","label":"Desayuno + preparar bolso","type":"gap"},{"time":"8:50","label":"Traslado Sullana → UPAO","type":"gap"},{"time":"9:45","label":"CLASE: Biología Molecular — teoría","type":"class"},{"time":"11:30","label":"CLASE: Bioquímica Médica — teoría","type":"class"},{"time":"1:20","label":"CLASE: Sistema Excretor — teoría","type":"class"},{"time":"3:10","label":"CLASE: Aparato Locomotor — teoría","type":"class"},{"time":"5:00","label":"Regreso UPAO → Sullana","type":"gap"},{"time":"7:00","label":"Cena + verificar subida informe en EVA","type":"task"},{"time":"9:30","label":"Dormir","type":"sleep"}],"martes":[{"time":"4:30","label":"Despertar — día más largo del ciclo","type":"sleep"},{"time":"5:00","label":"Desayuno fuerte + preparar todo","type":"gap"},{"time":"6:10","label":"Traslado Sullana → UPAO","type":"gap"},{"time":"7:00","label":"LAB: Locomotor — pre-test + cadáver","type":"class"},{"time":"9:45","label":"LAB: Biología Molecular","type":"class"},{"time":"10:35","label":"Cambio de aula rápido","type":"gap"},{"time":"10:40","label":"LAB: Bioquímica Médica","type":"class"},{"time":"12:25","label":"LAB: Sistema Excretor","type":"class"},{"time":"2:20","label":"Regreso UPAO → Sullana","type":"gap"},{"time":"9:30","label":"Cena + dormir","type":"sleep"}],"miercoles":[{"time":"6:00","label":"Despertar + aseo","type":"sleep"},{"time":"7:00","label":"Estudio previo guía Bioquímica — PRIORIDAD","type":"study"},{"time":"7:50","label":"Desayuno rápido + preparar bolso","type":"gap"},{"time":"8:00","label":"Traslado Sullana → UPAO","type":"gap"},{"time":"9:45","label":"CLASE: Comunicación I — teoría","type":"class"},{"time":"11:30","label":"LAB: Bioquímica Médica — laboratorio","type":"class"},{"time":"12:25","label":"Informe Bioquímica — completar y subir (10 min)","type":"task"},{"time":"12:35","label":"Almuerzo + descanso real","type":"gap"},{"time":"2:00","label":"Lectura Club Comunicación — revisar antes de entrar","type":"study"},{"time":"2:20","label":"CLASE: Comunicación I — Club semanal","type":"class"},{"time":"4:10","label":"Regreso UPAO → Sullana","type":"gap"},{"time":"5:00","label":"Repaso Excretor — tema semana actual","type":"study"},{"time":"6:30","label":"Cena + verificar EVA","type":"gap"},{"time":"11:00","label":"Dormir","type":"sleep"}],"jueves":[{"time":"5:30","label":"Despertar + aseo","type":"sleep"},{"time":"6:00","label":"Ejercicio — 1.5h","type":"exercise"},{"time":"7:30","label":"Locomotor — Estructuras de la semana actual","type":"study"},{"time":"8:45","label":"Locomotor — Preguntas tipo pretest OPM","type":"study"},{"time":"9:55","label":"Excretor — Fisiología renal semana actual","type":"study"},{"time":"11:05","label":"Excretor — Preguntas tipo post-test","type":"study"},{"time":"1:00","label":"Bioquímica — Vías metabólicas semana","type":"study"},{"time":"2:10","label":"Bioquímica — Preguntas integradoras","type":"study"},{"time":"3:10","label":"TIN Biología Molecular — avance artículo","type":"task"},{"time":"4:20","label":"Lecturas Comunicación — Club semanal","type":"task"},{"time":"5:20","label":"Biología Molecular — Teoría semana","type":"study"},{"time":"7:20","label":"Repaso integrador del día","type":"study"},{"time":"10:30","label":"Dormir","type":"sleep"}],"viernes":[{"time":"5:30","label":"Despertar + aseo","type":"sleep"},{"time":"6:00","label":"Ejercicio — 1.5h","type":"exercise"},{"time":"7:45","label":"Locomotor — Estructuras disecadas del lab","type":"study"},{"time":"8:55","label":"Locomotor — Pretest tipo preguntas OPM","type":"study"},{"time":"10:05","label":"Locomotor — Simulacro oral en voz alta","type":"study"},{"time":"10:45","label":"Excretor — Preparar práctica del sábado","type":"study"},{"time":"11:55","label":"Bioquímica — Preparar práctica del sábado","type":"study"},{"time":"1:45","label":"Avance informe académico Comunicación","type":"task"},{"time":"3:55","label":"Biología Molecular — Mecanismos moleculares + TIN","type":"study"},{"time":"5:05","label":"Casos Integradores — Conectar temas semana","type":"study"},{"time":"6:30","label":"Locomotor — Último repaso oral antes del sábado","type":"study"},{"time":"10:30","label":"Dormir","type":"sleep"}],"sabado":[{"time":"4:30","label":"Despertar + desayuno fuerte","type":"sleep"},{"time":"5:30","label":"Repaso final Locomotor — pretest 5 preguntas","type":"study"},{"time":"6:20","label":"Repaso final Bioquímica — técnicas del lab","type":"study"},{"time":"7:05","label":"Traslado Sullana → UPAO","type":"gap"},{"time":"8:00","label":"LAB: Aparato Locomotor — pre-test + oral cadáver","type":"class"},{"time":"10:35","label":"Repaso Locomotor — oral cadáver estructuras","type":"study"},{"time":"11:25","label":"LAB: Excretor — práctica + post-test","type":"class"},{"time":"12:15","label":"Repaso Excretor — tema semana actual","type":"study"},{"time":"1:05","label":"LAB: Bioquímica — laboratorio + informe","type":"class"},{"time":"2:05","label":"Regreso UPAO → Sullana","type":"gap"},{"time":"5:05","label":"Siesta corta — 30 min (programar alarma)","type":"sleep"},{"time":"5:35","label":"Activación post-siesta: comer algo, agua, caminar","type":"gap"},{"time":"6:15","label":"Repaso ligero Locomotor — antes del oral","type":"study"},{"time":"7:30","label":"Descanso — cerrar apuntes, relajarse","type":"gap"},{"time":"10:00","label":"Dormir","type":"sleep"}],"domingo":[{"time":"8:00","label":"Despertar + desayuno tranquilo","type":"sleep"},{"time":"8:30","label":"Ejercicio — 1.5h","type":"exercise"},{"time":"10:15","label":"Bioquímica — Repaso vías metabólicas semana","type":"study"},{"time":"11:25","label":"Biología Molecular — Repaso teoría semana","type":"study"},{"time":"1:15","label":"Informe académico Comunicación — avance/revisión","type":"task"},{"time":"2:25","label":"TIN Biología Molecular — avance artículo","type":"task"},{"time":"3:25","label":"Revisar encuesta Casos Integradores + pendientes","type":"task"},{"time":"3:55","label":"Excretor — Integración semanal","type":"study"},{"time":"5:05","label":"Locomotor — Integración estructuras semana","type":"study"},{"time":"5:55","label":"Integración semanal — conectar los 4 cursos","type":"study"},{"time":"7:10","label":"Preparar lecturas previas del lunes","type":"task"},{"time":"11:00","label":"Dormir","type":"sleep"}]};
+
+const DIAS_MAP = {
+  0:'domingo',1:'lunes',2:'martes',3:'miercoles',
+  4:'jueves',5:'viernes',6:'sabado'
+};
+
+let tlDiaActivo = null;
+let tlEstado = {}; // {dia_idx: bool}
+
+function tlGetHoy() {
+  return DIAS_MAP[new Date().getDay()];
+}
+
+function tlGetKey(dia, idx) {
+  return 'tl_' + dia + '_' + idx;
+}
+
+function tlLoadEstado(dia) {
+  const tasks = TAREAS_DIA[dia] || [];
+  const estado = {};
+  tasks.forEach((t, i) => {
+    try {
+      estado[i] = localStorage.getItem(tlGetKey(dia, i)) === '1';
+    } catch(e) {
+      estado[i] = false;
+    }
+  });
+  return estado;
+}
+
+function tlSaveItem(dia, idx, val) {
+  try {
+    localStorage.setItem(tlGetKey(dia, idx), val ? '1' : '0');
+  } catch(e) {}
+}
+
+function tlRender(dia) {
+  const wrap = document.getElementById('tl-list-wrap');
+  const tasks = TAREAS_DIA[dia] || [];
+  const estado = tlLoadEstado(dia);
+  tlEstado = estado;
+
+  if (!tasks.length) {
+    wrap.innerHTML = '<div class="tl-empty">No hay tareas para este día 🕷️</div>';
+    return;
+  }
+
+  const dias_es = {lunes:'Lunes',martes:'Martes',miercoles:'Miércoles',
+    jueves:'Jueves',viernes:'Viernes',sabado:'Sábado',domingo:'Domingo'};
+
+  let html = '';
+  tasks.forEach((t, i) => {
+    const done = estado[i] || false;
+    const typeEmoji = {class:'📚',study:'🧠',task:'✍️',exercise:'💪',sleep:'😴',gap:'⏸️'};
+    const em = typeEmoji[t.type] || '•';
+    html += `<div class="tl-item type-${t.type}${done?' done':''}" onclick="tlToggleItem('${dia}',${i})" data-idx="${i}">
+      <div class="tl-check"></div>
+      <div class="tl-item-content">
+        <div class="tl-item-time">${em} ${t.time}</div>
+        <div class="tl-item-label">${t.label}</div>
+      </div>
+    </div>`;
+  });
+
+  wrap.innerHTML = html;
+  tlUpdateProgress(dia);
+
+  // Subtitle
+  const hoy = tlGetHoy();
+  const sub = document.getElementById('tl-subtitle');
+  if (sub) sub.textContent = dias_es[dia] + (dia === hoy ? ' · Hoy' : '');
+}
+
+function tlToggleItem(dia, idx) {
+  const estado = tlLoadEstado(dia);
+  estado[idx] = !estado[idx];
+  tlSaveItem(dia, idx, estado[idx]);
+
+  const item = document.querySelector(`[data-idx="${idx}"]`);
+  if (item) {
+    item.classList.toggle('done', estado[idx]);
+    const check = item.querySelector('.tl-check');
+    if (check) check.style.transition = 'all .2s';
+  }
+  tlUpdateProgress(dia);
+  tlUpdateBadge();
+}
+
+function tlUpdateProgress(dia) {
+  const tasks = TAREAS_DIA[dia] || [];
+  const estado = tlLoadEstado(dia);
+  const total = tasks.length;
+  const done = Object.values(estado).filter(Boolean).length;
+  const pct = total > 0 ? Math.round((done/total)*100) : 0;
+
+  const bar = document.getElementById('tl-progress-bar');
+  const txt = document.getElementById('tl-progress-txt');
+  if (bar) bar.style.width = pct + '%';
+  if (txt) txt.textContent = done + ' de ' + total + ' completadas (' + pct + '%)';
+}
+
+function tlUpdateBadge() {
+  const hoy = tlGetHoy();
+  const tasks = TAREAS_DIA[hoy] || [];
+  const estado = tlLoadEstado(hoy);
+  const pending = tasks.filter((t,i) => !estado[i] && t.type !== 'sleep' && t.type !== 'gap').length;
+  const badge = document.getElementById('tl-badge');
+  if (badge) {
+    badge.textContent = pending;
+    badge.style.display = pending > 0 ? 'flex' : 'none';
+  }
+}
+
+function tlSetDia(dia) {
+  tlDiaActivo = dia;
+  // Actualizar tabs
+  document.querySelectorAll('.tl-tab').forEach(t => {
+    t.classList.toggle('active', t.dataset.dia === dia);
+  });
+  tlRender(dia);
+}
+
+function tlOpen() {
+  const hoy = tlGetHoy();
+  document.getElementById('tl-overlay').classList.add('tl-open');
+  document.getElementById('tl-panel').classList.add('tl-open');
+  document.body.style.overflow = 'hidden';
+
+  // Marcar hoy en tabs
+  document.querySelectorAll('.tl-tab').forEach(t => {
+    t.classList.toggle('today', t.dataset.dia === hoy);
+  });
+
+  tlSetDia(tlDiaActivo || hoy);
+}
+
+function tlClose() {
+  document.getElementById('tl-overlay').classList.remove('tl-open');
+  document.getElementById('tl-panel').classList.remove('tl-open');
+  document.body.style.overflow = '';
+}
+
+function tlToggle() {
+  const isOpen = document.getElementById('tl-panel').classList.contains('tl-open');
+  isOpen ? tlClose() : tlOpen();
+}
+
+function tlClearDone() {
+  const dia = tlDiaActivo || tlGetHoy();
+  const tasks = TAREAS_DIA[dia] || [];
+  tasks.forEach((t, i) => tlSaveItem(dia, i, false));
+  tlRender(dia);
+  tlUpdateBadge();
+}
+
+// Cerrar con tecla Escape
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape') tlClose();
+});
+
+// Inicializar badge al cargar
+document.addEventListener('DOMContentLoaded', () => {
+  tlUpdateBadge();
+  // Actualizar badge cada minuto
+  setInterval(tlUpdateBadge, 60000);
+});
+
+
 document.addEventListener('DOMContentLoaded', actualizarSemana);
 if (document.readyState === 'complete' || document.readyState === 'interactive') {
   actualizarSemana();
 }
 
 </script>
+
+<!-- ══ TASK LIST SPIDER-MAN FAB ══ -->
+<div id="tl-fab" onclick="tlToggle()" aria-label="Abrir lista de tareas" role="button">
+  <svg viewBox="0 0 34 34" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- telaraña fondo -->
+  <circle cx="17" cy="17" r="12" stroke="rgba(255,255,255,0.15)" stroke-width="0.7"/>
+  <circle cx="17" cy="17" r="7" stroke="rgba(255,255,255,0.15)" stroke-width="0.7"/>
+  <line x1="17" y1="5" x2="17" y2="29" stroke="rgba(255,255,255,0.15)" stroke-width="0.7"/>
+  <line x1="5" y1="17" x2="29" y2="17" stroke="rgba(255,255,255,0.15)" stroke-width="0.7"/>
+  <line x1="8.5" y1="8.5" x2="25.5" y2="25.5" stroke="rgba(255,255,255,0.15)" stroke-width="0.7"/>
+  <line x1="25.5" y1="8.5" x2="8.5" y2="25.5" stroke="rgba(255,255,255,0.15)" stroke-width="0.7"/>
+  <!-- araña cuerpo -->
+  <ellipse cx="17" cy="16" rx="3.5" ry="5" fill="white"/>
+  <ellipse cx="17" cy="22" rx="4.5" ry="3.5" fill="white"/>
+  <circle cx="17" cy="11" r="2.5" fill="white"/>
+  <!-- ojos araña -->
+  <ellipse cx="15.8" cy="10.8" rx="1.1" ry="1.4" fill="#c8392b"/>
+  <ellipse cx="18.2" cy="10.8" rx="1.1" ry="1.4" fill="#c8392b"/>
+  <!-- patas izquierda -->
+  <path d="M13.5 14 Q9 11 5.5 13" stroke="white" stroke-width="1.4" stroke-linecap="round"/>
+  <path d="M13.5 17 Q9 17 5 19" stroke="white" stroke-width="1.3" stroke-linecap="round"/>
+  <path d="M13.5 20 Q9 22 6 25" stroke="white" stroke-width="1.2" stroke-linecap="round"/>
+  <!-- patas derecha -->
+  <path d="M20.5 14 Q25 11 28.5 13" stroke="white" stroke-width="1.4" stroke-linecap="round"/>
+  <path d="M20.5 17 Q25 17 29 19" stroke="white" stroke-width="1.3" stroke-linecap="round"/>
+  <path d="M20.5 20 Q25 22 28 25" stroke="white" stroke-width="1.2" stroke-linecap="round"/>
+</svg>
+  <span id="tl-badge">0</span>
+</div>
+<div id="tl-overlay" onclick="tlClose()"></div>
+<div id="tl-panel" role="dialog" aria-label="Lista de tareas">
+
+  <!-- Header -->
+  <div id="tl-header">
+    <div class="tl-header-row">
+      <svg class="tl-spider-icon" viewBox="0 0 32 32" fill="none">
+        <ellipse cx="16" cy="15" rx="5" ry="7" fill="white"/>
+        <ellipse cx="16" cy="22" rx="6.5" ry="5" fill="white"/>
+        <circle cx="16" cy="9" r="3.5" fill="white"/>
+        <ellipse cx="14.3" cy="8.6" rx="1.3" ry="1.7" fill="#c8392b"/>
+        <ellipse cx="17.7" cy="8.6" rx="1.3" ry="1.7" fill="#c8392b"/>
+        <path d="M11 13 Q6 10 2 12" stroke="white" stroke-width="1.8" stroke-linecap="round"/>
+        <path d="M11 16 Q6 16 2 18" stroke="white" stroke-width="1.6" stroke-linecap="round"/>
+        <path d="M11 19.5 Q6 22 3 26" stroke="white" stroke-width="1.4" stroke-linecap="round"/>
+        <path d="M21 13 Q26 10 30 12" stroke="white" stroke-width="1.8" stroke-linecap="round"/>
+        <path d="M21 16 Q26 16 30 18" stroke="white" stroke-width="1.6" stroke-linecap="round"/>
+        <path d="M21 19.5 Q26 22 29 26" stroke="white" stroke-width="1.4" stroke-linecap="round"/>
+      </svg>
+      <div class="tl-title-wrap">
+        <div class="tl-title">🕷️ Task List del Día</div>
+        <div class="tl-subtitle" id="tl-subtitle">Cargando tareas...</div>
+      </div>
+      <button id="tl-close" onclick="tlClose()" aria-label="Cerrar">✕</button>
+    </div>
+    <div id="tl-progress-bar-wrap">
+      <div id="tl-progress-bar"></div>
+    </div>
+    <div class="tl-progress-txt" id="tl-progress-txt">0 de 0 completadas</div>
+  </div>
+
+  <!-- Tabs días -->
+  <div id="tl-tabs">
+    <div class="tl-tab" data-dia="lunes" onclick="tlSetDia('lunes')">Lun</div>
+    <div class="tl-tab" data-dia="martes" onclick="tlSetDia('martes')">Mar</div>
+    <div class="tl-tab" data-dia="miercoles" onclick="tlSetDia('miercoles')">Mié</div>
+    <div class="tl-tab" data-dia="jueves" onclick="tlSetDia('jueves')">Jue</div>
+    <div class="tl-tab" data-dia="viernes" onclick="tlSetDia('viernes')">Vie</div>
+    <div class="tl-tab" data-dia="sabado" onclick="tlSetDia('sabado')">Sáb</div>
+    <div class="tl-tab" data-dia="domingo" onclick="tlSetDia('domingo')">Dom</div>
+  </div>
+
+  <!-- Leyenda -->
+  <div class="tl-legend">
+    <div class="tl-legend-item"><div class="tl-legend-dot" style="background:#3b82f6"></div>Clase</div>
+    <div class="tl-legend-item"><div class="tl-legend-dot" style="background:#c8392b"></div>Estudio</div>
+    <div class="tl-legend-item"><div class="tl-legend-dot" style="background:#e8c43c"></div>Tarea</div>
+    <div class="tl-legend-item"><div class="tl-legend-dot" style="background:#22c55e"></div>Ejercicio</div>
+    <div class="tl-legend-item"><div class="tl-legend-dot" style="background:#8b5cf6"></div>Descanso</div>
+  </div>
+
+  <!-- Lista -->
+  <div id="tl-list-wrap"></div>
+
+  <!-- Botón limpiar -->
+  <button id="tl-clear-btn" onclick="tlClearDone()">Limpiar completadas</button>
+</div>
+
 </body>
 </html>
