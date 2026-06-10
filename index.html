@@ -1284,6 +1284,81 @@ body::before {
   #tl-fab { bottom: 28px; left: 28px; }
 }
 
+
+/* ══ SISTEMA NOTIFICACIONES ══ */
+#notif-banner {
+  position: fixed;
+  top: -100px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: min(420px, 94vw);
+  background: linear-gradient(135deg, #1a0a2e 0%, #0d1021 100%);
+  border: 1.5px solid #c8392b;
+  border-radius: 16px;
+  padding: .9rem 1.1rem;
+  z-index: 9999;
+  transition: top .4s cubic-bezier(.32,.72,0,1);
+  box-shadow: 0 8px 32px rgba(200,57,43,.4);
+  display: flex;
+  align-items: center;
+  gap: .8rem;
+}
+#notif-banner.show { top: 16px; }
+.notif-icon { font-size: 1.6rem; flex-shrink:0; }
+.notif-body { flex:1; min-width:0; }
+.notif-title {
+  font-size: .85rem;
+  font-weight: 700;
+  color: #fff;
+  margin-bottom: .15rem;
+}
+.notif-msg {
+  font-size: .78rem;
+  color: rgba(255,255,255,.65);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.notif-time {
+  font-size: .7rem;
+  color: #e8c43c;
+  font-weight: 700;
+  flex-shrink:0;
+}
+#notif-close-btn {
+  background: none;
+  border: none;
+  color: rgba(255,255,255,.5);
+  font-size: 1rem;
+  cursor: pointer;
+  padding: 4px;
+  flex-shrink:0;
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* Botón activar notificaciones */
+#notif-enable-btn {
+  position: fixed;
+  bottom: max(96px, calc(env(safe-area-inset-bottom,0px) + 96px));
+  left: max(24px, env(safe-area-inset-left,24px));
+  background: linear-gradient(135deg, #1a2a6c, #0d1021);
+  border: 1.5px solid rgba(100,120,255,.4);
+  border-radius: 24px;
+  padding: .45rem .85rem;
+  color: rgba(255,255,255,.75);
+  font-size: .72rem;
+  font-weight: 600;
+  cursor: pointer;
+  z-index: 8999;
+  display: none;
+  align-items: center;
+  gap: .4rem;
+  transition: all .2s;
+  -webkit-tap-highlight-color: transparent;
+}
+#notif-enable-btn:hover { border-color: rgba(100,120,255,.7); color:#fff; }
+#notif-enable-btn.visible { display: flex; }
+
 </style>
 </head>
 <body>
@@ -2384,11 +2459,12 @@ function tlUpdateBadge() {
 
 function tlSetDia(dia) {
   tlDiaActivo = dia;
-  // Actualizar tabs
   document.querySelectorAll('.tl-tab').forEach(t => {
     t.classList.toggle('active', t.dataset.dia === dia);
   });
   tlRender(dia);
+  const hoy = DIAS_MAP[new Date().getDay()];
+  if (dia === hoy) notifScheduleDay(dia);
 }
 
 function tlOpen() {
@@ -2430,14 +2506,161 @@ document.addEventListener('keydown', e => {
 });
 
 // Inicializar badge al cargar
+
+// ══ SISTEMA DE NOTIFICACIONES ══
+const NOTIF_SKIP_TYPES = ['gap','sleep'];
+let notifTimers = [];
+let notifBannerTimer = null;
+
+function notifParseTime(str) {
+  // "5:00" → minutos desde medianoche
+  const parts = str.trim().split(':');
+  return parseInt(parts[0]) * 60 + (parseInt(parts[1]) || 0);
+}
+
+function notifGetMinutesNow() {
+  const n = new Date();
+  return n.getHours() * 60 + n.getMinutes();
+}
+
+function notifHide() {
+  document.getElementById('notif-banner').classList.remove('show');
+  if (notifBannerTimer) clearTimeout(notifBannerTimer);
+}
+
+function notifShow(title, msg, timeTag) {
+  const banner = document.getElementById('notif-banner');
+  document.getElementById('notif-title').textContent = title;
+  document.getElementById('notif-msg').textContent = msg;
+  document.getElementById('notif-time-tag').textContent = timeTag || '';
+  banner.classList.add('show');
+  if (notifBannerTimer) clearTimeout(notifBannerTimer);
+  notifBannerTimer = setTimeout(notifHide, 8000);
+}
+
+function notifFireNative(title, body) {
+  if (Notification.permission === 'granted') {
+    try {
+      new Notification(title, {
+        body: body,
+        icon: 'icon-192.png',
+        badge: 'icon-192.png',
+        vibrate: [200, 100, 200],
+        tag: 'horario-upao-' + Date.now(),
+        requireInteraction: false,
+      });
+    } catch(e) {
+      // Fallback al banner in-app
+      notifShow(title, body);
+    }
+  } else {
+    notifShow(title, body);
+  }
+}
+
+function notifScheduleDay(dia) {
+  // Limpiar timers anteriores
+  notifTimers.forEach(t => clearTimeout(t));
+  notifTimers = [];
+
+  const tasks = TAREAS_DIA[dia] || [];
+  const nowMins = notifGetMinutesNow();
+
+  tasks.forEach((task, idx) => {
+    if (NOTIF_SKIP_TYPES.includes(task.type)) return;
+
+    const taskMins = notifParseTime(task.time);
+    
+    // ── Aviso 10 min antes ──
+    const preAlertMins = taskMins - 10;
+    const preAlertDelay = (preAlertMins - nowMins) * 60 * 1000;
+    if (preAlertDelay > 0) {
+      const t1 = setTimeout(() => {
+        const key = tlGetKey(dia, idx);
+        let done = false;
+        try { done = localStorage.getItem(key) === '1'; } catch(e) {}
+        if (!done) {
+          notifFireNative(
+            '⏰ En 10 minutos — ' + task.time,
+            task.label
+          );
+        }
+      }, preAlertDelay);
+      notifTimers.push(t1);
+    }
+
+    // ── Recordatorio en el momento exacto si no completó ──
+    const exactDelay = (taskMins - nowMins) * 60 * 1000;
+    if (exactDelay > 0) {
+      const t2 = setTimeout(() => {
+        const key = tlGetKey(dia, idx);
+        let done = false;
+        try { done = localStorage.getItem(key) === '1'; } catch(e) {}
+        if (!done) {
+          notifFireNative(
+            '🕷️ ¡Ahora! — ' + task.time,
+            '¿Completaste: ' + task.label + '?'
+          );
+        }
+      }, exactDelay);
+      notifTimers.push(t2);
+    }
+  });
+
+  console.log('Notificaciones programadas:', notifTimers.length, 'para', dia);
+}
+
+function notifRequestPermission() {
+  if (!('Notification' in window)) {
+    notifShow('⚠️ No compatible', 'Tu navegador no soporta notificaciones');
+    return;
+  }
+  Notification.requestPermission().then(perm => {
+    const btn = document.getElementById('notif-enable-btn');
+    if (perm === 'granted') {
+      btn.classList.remove('visible');
+      try { localStorage.setItem('notif_enabled','1'); } catch(e) {}
+      const hoy = DIAS_MAP[new Date().getDay()];
+      notifScheduleDay(hoy);
+      notifShow('✅ Recordatorios activados', 'Te avisaré 10 min antes de cada tarea');
+      new Notification('🕷️ Horario UPAO', {
+        body: 'Recordatorios activados para hoy',
+        icon: 'icon-192.png'
+      });
+    } else {
+      notifShow('❌ Permiso denegado', 'Actívalo en Configuración del navegador');
+    }
+  });
+}
+
+function notifInit() {
+  if (!('Notification' in window)) return;
+  
+  const btn = document.getElementById('notif-enable-btn');
+  const hoy = DIAS_MAP[new Date().getDay()];
+
+  if (Notification.permission === 'granted') {
+    // Ya tiene permiso — programar el día directamente
+    if (btn) btn.classList.remove('visible');
+    notifScheduleDay(hoy);
+  } else if (Notification.permission === 'default') {
+    // Mostrar botón para pedir permiso
+    if (btn) btn.classList.add('visible');
+  }
+  // Si es 'denied' no mostrar nada
+}
+
+
 document.addEventListener('DOMContentLoaded', () => {
   tlUpdateBadge();
   setInterval(tlUpdateBadge, 60000);
   actualizarSemana();
+  notifInit();
 });
 if (document.readyState === 'complete' || document.readyState === 'interactive') {
   tlUpdateBadge();
   actualizarSemana();
+  notifInit();
 }
 
 </script>
@@ -2527,6 +2750,21 @@ if (document.readyState === 'complete' || document.readyState === 'interactive')
   <!-- Botón limpiar -->
   <button id="tl-clear-btn" onclick="tlClearDone()">Limpiar completadas</button>
 </div>
+
+
+<!-- ══ NOTIFICACIONES ══ -->
+<div id="notif-banner">
+  <div class="notif-icon">🕷️</div>
+  <div class="notif-body">
+    <div class="notif-title" id="notif-title">Recordatorio</div>
+    <div class="notif-msg" id="notif-msg">—</div>
+  </div>
+  <div class="notif-time" id="notif-time-tag"></div>
+  <button class="notif-close-btn" id="notif-close-btn" onclick="notifHide()">✕</button>
+</div>
+<button id="notif-enable-btn" onclick="notifRequestPermission()">
+  🔔 Activar recordatorios
+</button>
 
 </body>
 </html>
