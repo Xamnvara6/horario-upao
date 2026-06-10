@@ -2424,13 +2424,11 @@ document.addEventListener('keydown', e => {
 // Inicializar badge al cargar
 document.addEventListener('DOMContentLoaded', () => {
   tlUpdateBadge();
-  // Actualizar badge cada minuto
   setInterval(tlUpdateBadge, 60000);
+  actualizarSemana();
 });
-
-
-document.addEventListener('DOMContentLoaded', actualizarSemana);
 if (document.readyState === 'complete' || document.readyState === 'interactive') {
+  tlUpdateBadge();
   actualizarSemana();
 }
 
