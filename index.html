@@ -979,6 +979,7 @@ body::before {
   opacity: 0;
   pointer-events: none;
   transition: opacity .3s ease;
+  touch-action: manipulation;
 }
 #tl-overlay.tl-open { opacity: 1; pointer-events: all; }
 
@@ -1036,12 +1037,13 @@ body::before {
   margin-top: .1rem;
 }
 #tl-close {
-  width: 34px; height: 34px;
+  width: 44px; height: 44px;
   border-radius: 50%;
-  background: rgba(255,255,255,.15);
+  background: rgba(255,255,255,.18);
   border: none;
   color: #fff;
-  font-size: 1.1rem;
+  font-size: 1.2rem;
+  font-weight: 700;
   cursor: pointer;
   display: flex; align-items:center; justify-content:center;
   transition: background .2s;
@@ -1049,6 +1051,7 @@ body::before {
   -webkit-tap-highlight-color: transparent;
   position: relative;
   z-index: 10;
+  touch-action: manipulation;
 }
 #tl-close:hover { background: rgba(255,255,255,.28); }
 
