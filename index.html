@@ -1272,9 +1272,14 @@ body::before {
     max-height: 82vh;
     border-radius: 20px;
     border: 1.5px solid rgba(200,57,43,.3);
+    opacity: 0;
+    pointer-events: none;
+    transition: transform .35s cubic-bezier(.32,.72,0,1), opacity .25s ease;
   }
   #tl-panel.tl-open {
     transform: translate(-50%, -50%) scale(1);
+    opacity: 1;
+    pointer-events: all;
   }
   #tl-fab { bottom: 28px; left: 28px; }
 }
