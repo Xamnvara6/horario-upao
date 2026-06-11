@@ -2399,7 +2399,7 @@ if ('serviceWorker' in navigator) {
 
 // ══ PWA: Install prompt ══════════════════════════
 let deferredPrompt = null;
-const banner = document.getElementById('pwa-banner');
+const pwaBanner = document.getElementById('pwa-pwaBanner');
 const iosHint = document.getElementById('ios-hint');
 const installBtn = document.getElementById('pwa-install-btn');
 const closeBtn = document.getElementById('pwa-close');
@@ -2420,7 +2420,7 @@ if (!isStandalone && !dismissed) {
     window.addEventListener('beforeinstallprompt', (e) => {
       e.preventDefault();
       deferredPrompt = e;
-      setTimeout(() => { banner.classList.remove('hidden'); }, 2000);
+      setTimeout(() => { pwaBanner.classList.remove('hidden'); }, 2000);
     });
   }
 }
@@ -2431,12 +2431,12 @@ if (installBtn) {
     deferredPrompt.prompt();
     const { outcome } = await deferredPrompt.userChoice;
     deferredPrompt = null;
-    banner.classList.add('hidden');
+    pwaBanner.classList.add('hidden');
   });
 }
 if (closeBtn) {
   closeBtn.addEventListener('click', () => {
-    banner.classList.add('hidden');
+    pwaBanner.classList.add('hidden');
     sessionStorage.setItem('pwa-dismissed', '1');
   });
 }
