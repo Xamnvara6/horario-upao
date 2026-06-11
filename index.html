@@ -1558,6 +1558,197 @@ body::before {
   #eval-panel { width: min(320px, 90vw); }
 }
 
+
+/* ══ POMODORO ══ */
+#pomo-fab {
+  position: fixed;
+  bottom: max(24px, env(safe-area-inset-bottom, 24px));
+  right: max(24px, env(safe-area-inset-right, 24px));
+  width: 58px; height: 58px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #1a2a6c 0%, #0d1021 100%);
+  border: 2px solid rgba(100,130,255,.4);
+  box-shadow: 0 4px 20px rgba(30,60,200,.4);
+  cursor: pointer;
+  display: flex; align-items:center; justify-content:center;
+  flex-direction: column;
+  z-index: 8800;
+  transition: transform .2s cubic-bezier(.34,1.56,.64,1), box-shadow .2s;
+  -webkit-tap-highlight-color: transparent;
+  gap: 1px;
+}
+#pomo-fab:hover { transform: scale(1.1); box-shadow: 0 6px 28px rgba(30,60,200,.6); }
+#pomo-fab:active { transform: scale(.93); }
+#pomo-fab-icon { font-size: 1.3rem; line-height:1; }
+#pomo-fab-time {
+  font-size: .58rem;
+  font-weight: 800;
+  color: rgba(255,255,255,.8);
+  letter-spacing: .02em;
+  line-height:1;
+}
+#pomo-fab.running {
+  border-color: #c8392b;
+  box-shadow: 0 4px 20px rgba(200,57,43,.5);
+  animation: pomo-ring 2s ease-in-out infinite;
+}
+#pomo-fab.break-mode {
+  border-color: #22c55e;
+  box-shadow: 0 4px 20px rgba(34,197,94,.4);
+}
+@keyframes pomo-ring {
+  0%,100% { box-shadow: 0 4px 20px rgba(200,57,43,.5), 0 0 0 0 rgba(200,57,43,.3); }
+  50% { box-shadow: 0 4px 20px rgba(200,57,43,.5), 0 0 0 8px rgba(200,57,43,.0); }
+}
+
+/* Panel Pomodoro */
+#pomo-panel {
+  position: fixed;
+  bottom: max(94px, calc(env(safe-area-inset-bottom,0px) + 94px));
+  right: max(16px, env(safe-area-inset-right, 16px));
+  width: min(300px, 90vw);
+  background: #0d1021;
+  border: 1.5px solid rgba(100,130,255,.3);
+  border-radius: 20px;
+  z-index: 8700;
+  overflow: hidden;
+  box-shadow: 0 8px 32px rgba(0,0,0,.7);
+  transform: scale(.85) translateY(20px);
+  opacity: 0;
+  pointer-events: none;
+  transition: transform .3s cubic-bezier(.32,.72,0,1), opacity .25s ease;
+  transform-origin: bottom right;
+}
+#pomo-panel.open {
+  transform: scale(1) translateY(0);
+  opacity: 1;
+  pointer-events: all;
+}
+
+/* Header */
+#pomo-header {
+  background: linear-gradient(135deg, #1a2a6c 0%, #0d1021 100%);
+  padding: .85rem 1rem .75rem;
+  display: flex; align-items:center; justify-content:space-between;
+  border-bottom: 1px solid rgba(255,255,255,.07);
+}
+.pomo-title { font-size: .9rem; font-weight:800; color:#fff; }
+#pomo-close {
+  background: rgba(255,255,255,.1); border:none; color:#fff;
+  width:28px; height:28px; border-radius:50%; cursor:pointer;
+  display:flex; align-items:center; justify-content:center;
+  font-size:.85rem; -webkit-tap-highlight-color:transparent;
+  transition: background .2s;
+}
+#pomo-close:hover { background: rgba(255,255,255,.2); }
+
+/* Modo tabs */
+.pomo-modes {
+  display: flex; gap:.3rem; padding:.6rem .9rem .3rem;
+}
+.pomo-mode-btn {
+  flex:1; padding:.3rem .2rem; border-radius:8px;
+  border: 1.5px solid rgba(255,255,255,.1);
+  background: transparent; color: rgba(255,255,255,.45);
+  font-size: .68rem; font-weight:700; cursor:pointer;
+  transition: all .2s; -webkit-tap-highlight-color:transparent;
+  text-align:center;
+}
+.pomo-mode-btn.active {
+  border-color: #c8392b; background: rgba(200,57,43,.15); color:#fff;
+}
+.pomo-mode-btn.break-active {
+  border-color: #22c55e; background: rgba(34,197,94,.12); color:#22c55e;
+}
+.pomo-mode-btn.longbreak-active {
+  border-color: #3b82f6; background: rgba(59,130,246,.12); color:#3b82f6;
+}
+
+/* Timer display */
+.pomo-timer-wrap {
+  padding: .8rem 1rem .5rem;
+  display:flex; flex-direction:column; align-items:center; gap:.5rem;
+}
+
+/* SVG ring */
+.pomo-ring-wrap { position:relative; width:140px; height:140px; }
+#pomo-svg { transform: rotate(-90deg); }
+#pomo-ring-bg { fill:none; stroke:rgba(255,255,255,.08); stroke-width:8; }
+#pomo-ring-progress {
+  fill:none; stroke:#c8392b; stroke-width:8;
+  stroke-linecap:round;
+  stroke-dasharray: 408;
+  stroke-dashoffset: 0;
+  transition: stroke-dashoffset .5s linear, stroke .3s;
+}
+#pomo-ring-progress.break-ring { stroke: #22c55e; }
+#pomo-ring-progress.longbreak-ring { stroke: #3b82f6; }
+
+.pomo-time-display {
+  position:absolute; inset:0;
+  display:flex; flex-direction:column;
+  align-items:center; justify-content:center;
+  gap:2px;
+}
+#pomo-time-text {
+  font-size: 2rem; font-weight:800; color:#fff;
+  font-variant-numeric: tabular-nums; letter-spacing:-.02em;
+}
+#pomo-mode-label {
+  font-size:.62rem; font-weight:700; color:rgba(255,255,255,.4);
+  text-transform:uppercase; letter-spacing:.08em;
+}
+
+/* Contador pomodoros */
+.pomo-dots {
+  display:flex; gap:.35rem; align-items:center;
+}
+.pomo-dot {
+  width:9px; height:9px; border-radius:50%;
+  background: rgba(255,255,255,.15);
+  transition: background .3s;
+}
+.pomo-dot.done { background: #c8392b; }
+.pomo-dot.current { background: rgba(200,57,43,.5); animation: pomo-ring 1.5s infinite; }
+
+/* Controles */
+.pomo-controls {
+  display:flex; gap:.5rem; padding:.5rem .9rem .8rem;
+}
+#pomo-btn-main {
+  flex:1; padding:.6rem; border-radius:12px;
+  background: linear-gradient(135deg,#c8392b,#8b1a10);
+  border:none; color:#fff; font-size:.85rem; font-weight:800;
+  cursor:pointer; transition: all .2s; -webkit-tap-highlight-color:transparent;
+}
+#pomo-btn-main:hover { opacity:.9; transform:scale(1.02); }
+#pomo-btn-main.break-btn { background: linear-gradient(135deg,#22c55e,#15803d); }
+#pomo-btn-reset {
+  width:40px; padding:.6rem;
+  border-radius:12px; background:rgba(255,255,255,.07);
+  border:1.5px solid rgba(255,255,255,.12); color:rgba(255,255,255,.6);
+  font-size:.9rem; cursor:pointer; -webkit-tap-highlight-color:transparent;
+  transition: all .2s;
+}
+#pomo-btn-reset:hover { background:rgba(255,255,255,.12); color:#fff; }
+
+/* Stats */
+.pomo-stats {
+  padding:.4rem .9rem .7rem;
+  display:flex; gap:.5rem;
+  border-top: 1px solid rgba(255,255,255,.06);
+}
+.pomo-stat {
+  flex:1; text-align:center;
+}
+.pomo-stat-val { font-size:.9rem; font-weight:800; color:#fff; }
+.pomo-stat-lbl { font-size:.6rem; color:rgba(255,255,255,.35); margin-top:1px; }
+
+@media (max-width:600px) {
+  #pomo-panel { bottom: max(88px, calc(env(safe-area-inset-bottom,0px) + 88px)); }
+  #pomo-fab { bottom: max(20px, env(safe-area-inset-bottom,20px)); right: max(20px, env(safe-area-inset-right,20px)); width:52px; height:52px; }
+}
+
 </style>
 </head>
 <body>
@@ -2983,18 +3174,221 @@ document.addEventListener('click', e => {
 });
 
 
+
+// ══ POMODORO ══
+const POMO_DURATIONS = { work: 25*60, break: 5*60, long: 15*60 };
+let pomoMode     = 'work';
+let pomoTotal    = POMO_DURATIONS.work;
+let pomoLeft     = POMO_DURATIONS.work;
+let pomoRunning  = false;
+let pomoTimer    = null;
+let pomoCount    = 0; // pomodoros completados en esta sesión
+const POMO_CIRCUMFERENCE = 2 * Math.PI * 65; // ~408.4
+
+function pomoToggle() {
+  const panel = document.getElementById('pomo-panel');
+  panel.classList.toggle('open');
+  if (panel.classList.contains('open')) pomoRefreshStats();
+}
+function pomoClose() {
+  document.getElementById('pomo-panel').classList.remove('open');
+}
+
+function pomoSetMode(mode) {
+  if (pomoRunning) return; // no cambiar mientras corre
+  pomoMode  = mode;
+  pomoTotal = POMO_DURATIONS[mode];
+  pomoLeft  = pomoTotal;
+  pomoRenderTime();
+  pomoRenderRing();
+  pomoUpdateModeUI();
+}
+
+function pomoUpdateModeUI() {
+  const labels = { work:'Estudio', break:'Descanso', long:'Largo' };
+  document.getElementById('pomo-mode-label').textContent = labels[pomoMode];
+  ['work','break','long'].forEach(m => {
+    const btn = document.getElementById('pomo-mode-' + (m==='break'?'break':m==='long'?'long':'work'));
+    if (!btn) return;
+    btn.classList.remove('active','break-active','longbreak-active');
+  });
+  const activeClass = pomoMode==='work'?'active': pomoMode==='break'?'break-active':'longbreak-active';
+  const activeId = pomoMode==='work'?'pomo-mode-work': pomoMode==='break'?'pomo-mode-break':'pomo-mode-long';
+  const btn = document.getElementById(activeId);
+  if (btn) btn.classList.add(activeClass);
+
+  const mainBtn = document.getElementById('pomo-btn-main');
+  if (mainBtn) {
+    mainBtn.classList.toggle('break-btn', pomoMode !== 'work');
+  }
+
+  // Ring color
+  const ring = document.getElementById('pomo-ring-progress');
+  if (ring) {
+    ring.classList.remove('break-ring','longbreak-ring');
+    if (pomoMode === 'break') ring.classList.add('break-ring');
+    if (pomoMode === 'long')  ring.classList.add('longbreak-ring');
+  }
+
+  // FAB color
+  const fab = document.getElementById('pomo-fab');
+  if (fab) {
+    fab.classList.remove('break-mode');
+    if (pomoMode !== 'work') fab.classList.add('break-mode');
+  }
+}
+
+function pomoRenderTime() {
+  const m = Math.floor(pomoLeft / 60);
+  const s = pomoLeft % 60;
+  const str = m + ':' + String(s).padStart(2,'0');
+  const el = document.getElementById('pomo-time-text');
+  const fab = document.getElementById('pomo-fab-time');
+  if (el)  el.textContent  = str;
+  if (fab) fab.textContent = str;
+  // Título pestaña cuando corre
+  if (pomoRunning) document.title = str + ' 🍅 Horario UPAO';
+  else document.title = 'Plan Académico — UPAO';
+}
+
+function pomoRenderRing() {
+  const ring = document.getElementById('pomo-ring-progress');
+  if (!ring) return;
+  const pct = pomoLeft / pomoTotal;
+  const offset = POMO_CIRCUMFERENCE * (1 - pct);
+  ring.style.strokeDasharray  = POMO_CIRCUMFERENCE;
+  ring.style.strokeDashoffset = offset;
+}
+
+function pomoRenderDots() {
+  const dots = document.querySelectorAll('.pomo-dot');
+  dots.forEach((d, i) => {
+    d.classList.remove('done','current');
+    if (i < pomoCount % 4)      d.classList.add('done');
+    else if (i === pomoCount % 4 && pomoRunning && pomoMode === 'work') d.classList.add('current');
+  });
+}
+
+function pomoToggleTimer() {
+  if (pomoRunning) {
+    pomoRunning = false;
+    clearInterval(pomoTimer);
+    document.getElementById('pomo-btn-main').textContent = '▶ Continuar';
+    document.getElementById('pomo-fab').classList.remove('running');
+    document.title = 'Plan Académico — UPAO';
+  } else {
+    pomoRunning = true;
+    document.getElementById('pomo-btn-main').textContent = '⏸ Pausar';
+    document.getElementById('pomo-fab').classList.add('running');
+    pomoTimer = setInterval(pomoTick, 1000);
+  }
+}
+
+function pomoTick() {
+  pomoLeft--;
+  pomoRenderTime();
+  pomoRenderRing();
+
+  if (pomoLeft <= 0) {
+    clearInterval(pomoTimer);
+    pomoRunning = false;
+    pomoOnComplete();
+  }
+}
+
+function pomoOnComplete() {
+  // Vibrar
+  if (navigator.vibrate) navigator.vibrate([400, 100, 400, 100, 400]);
+
+  // Notificación
+  const msgs = {
+    work:  { t:'🍅 ¡Pomodoro completado!', b:'25 min de estudio. Toma un descanso.' },
+    break: { t:'⚡ ¡Descanso terminado!',  b:'Listo para otro pomodoro.' },
+    long:  { t:'⚡ ¡Descanso largo listo!', b:'De vuelta al estudio.' },
+  };
+  const msg = msgs[pomoMode];
+  notifFireNative(msg.t, msg.b);
+
+  if (pomoMode === 'work') {
+    pomoCount++;
+    pomoSaveStats();
+    pomoRenderDots();
+    // Sugerir descanso
+    const nextMode = (pomoCount % 4 === 0) ? 'long' : 'break';
+    document.getElementById('pomo-btn-main').textContent = nextMode === 'long' ? '☕ Descanso largo' : '☕ Descanso corto';
+    document.getElementById('pomo-btn-main').onclick = () => { pomoSetMode(nextMode); pomoToggleTimer(); };
+    pomoRefreshStats();
+  } else {
+    document.getElementById('pomo-btn-main').textContent = '▶ Nuevo pomodoro';
+    document.getElementById('pomo-btn-main').onclick = () => { pomoSetMode('work'); pomoToggleTimer(); };
+  }
+
+  document.getElementById('pomo-fab').classList.remove('running');
+  document.title = 'Plan Académico — UPAO';
+}
+
+function pomoReset() {
+  clearInterval(pomoTimer);
+  pomoRunning = false;
+  pomoLeft = pomoTotal;
+  pomoRenderTime();
+  pomoRenderRing();
+  document.getElementById('pomo-btn-main').textContent = '▶ Iniciar';
+  document.getElementById('pomo-btn-main').onclick = pomoToggleTimer;
+  document.getElementById('pomo-fab').classList.remove('running');
+  document.title = 'Plan Académico — UPAO';
+}
+
+// ── Stats en localStorage ──
+function pomoSaveStats() {
+  try {
+    const today = new Date().toISOString().slice(0,10);
+    const data = JSON.parse(localStorage.getItem('pomo_stats') || '{}');
+    data[today] = (data[today] || 0) + 1;
+    data._total = (data._total || 0) + 1;
+    // Racha
+    const yesterday = new Date(Date.now() - 86400000).toISOString().slice(0,10);
+    data._streak = data[yesterday] ? (data._streak || 0) + 1 : 1;
+    localStorage.setItem('pomo_stats', JSON.stringify(data));
+  } catch(e) {}
+}
+
+function pomoRefreshStats() {
+  try {
+    const today = new Date().toISOString().slice(0,10);
+    const data = JSON.parse(localStorage.getItem('pomo_stats') || '{}');
+    const el1 = document.getElementById('pomo-stat-today');
+    const el2 = document.getElementById('pomo-stat-total');
+    const el3 = document.getElementById('pomo-stat-streak');
+    if (el1) el1.textContent = data[today] || 0;
+    if (el2) el2.textContent = data._total || 0;
+    if (el3) el3.textContent = data._streak || 0;
+  } catch(e) {}
+}
+
+// Inicializar
+function pomoInit() {
+  pomoRenderTime();
+  pomoRenderRing();
+  pomoUpdateModeUI();
+  pomoRefreshStats();
+}
+
+
 document.addEventListener('DOMContentLoaded', () => {
   tlUpdateBadge();
   setInterval(tlUpdateBadge, 60000);
   actualizarSemana();
   notifInit();
   evalBuildPanel();
+  pomoInit();
 });
 if (document.readyState === 'complete' || document.readyState === 'interactive') {
   tlUpdateBadge();
   actualizarSemana();
   notifInit();
   evalBuildPanel();
+  pomoInit();
 }
 
 </script>
@@ -3117,6 +3511,66 @@ if (document.readyState === 'complete' || document.readyState === 'interactive')
       <button id="eval-panel-close" onclick="evalClose()">✕</button>
     </div>
     <div id="eval-content"></div>
+  </div>
+</div>
+
+
+<!-- ══ POMODORO ══ -->
+<div id="pomo-fab" onclick="pomoToggle()" title="Pomodoro">
+  <div id="pomo-fab-icon">🍅</div>
+  <div id="pomo-fab-time">25:00</div>
+</div>
+
+<div id="pomo-panel">
+  <div id="pomo-header">
+    <span class="pomo-title">🍅 Pomodoro</span>
+    <button id="pomo-close" onclick="pomoClose()">✕</button>
+  </div>
+
+  <div class="pomo-modes">
+    <button class="pomo-mode-btn active" id="pomo-mode-work" onclick="pomoSetMode('work')">Estudio<br>25 min</button>
+    <button class="pomo-mode-btn" id="pomo-mode-break" onclick="pomoSetMode('break')">Descanso<br>5 min</button>
+    <button class="pomo-mode-btn" id="pomo-mode-long" onclick="pomoSetMode('long')">Largo<br>15 min</button>
+  </div>
+
+  <div class="pomo-timer-wrap">
+    <div class="pomo-ring-wrap">
+      <svg id="pomo-svg" width="140" height="140" viewBox="0 0 140 140">
+        <circle id="pomo-ring-bg" cx="70" cy="70" r="65"/>
+        <circle id="pomo-ring-progress" cx="70" cy="70" r="65"/>
+      </svg>
+      <div class="pomo-time-display">
+        <div id="pomo-time-text">25:00</div>
+        <div id="pomo-mode-label">Estudio</div>
+      </div>
+    </div>
+
+    <div class="pomo-dots" id="pomo-dots">
+      <div class="pomo-dot" data-n="0"></div>
+      <div class="pomo-dot" data-n="1"></div>
+      <div class="pomo-dot" data-n="2"></div>
+      <div class="pomo-dot" data-n="3"></div>
+    </div>
+  </div>
+
+  <div class="pomo-controls">
+    <button id="pomo-btn-main" onclick="pomoToggleTimer()">▶ Iniciar</button>
+    <button id="pomo-btn-reset" onclick="pomoReset()" title="Reiniciar">↺</button>
+  </div>
+
+  <div class="pomo-stats">
+    <div class="pomo-stat">
+      <div class="pomo-stat-val" id="pomo-stat-today">0</div>
+      <div class="pomo-stat-lbl">Hoy</div>
+    </div>
+    <div class="pomo-stat">
+      <div class="pomo-stat-val" id="pomo-stat-total">0</div>
+      <div class="pomo-stat-lbl">Total</div>
+    </div>
+    <div class="pomo-stat">
+      <div class="pomo-stat-val" id="pomo-stat-streak">0</div>
+      <div class="pomo-stat-lbl">Racha días</div>
+    </div>
   </div>
 </div>
 
