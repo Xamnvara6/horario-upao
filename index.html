@@ -2567,22 +2567,112 @@ document.addEventListener('keydown', (e) => {
 
 
 // ══ PWA: Service Worker (cache offline) ══════════
-const SW_VERSION = 'horario-v5-semana-auto';
+const SW_VERSION = 'horario-v6-notif-sw';
 if ('serviceWorker' in navigator) {
   // Inline service worker as a blob
   const swCode = `
     const CACHE = '${SW_VERSION}';
     const ASSETS = [self.location.href];
+
+    // ── Cache offline ──
     self.addEventListener('install', e => {
       e.waitUntil(caches.open(CACHE).then(c => c.addAll(ASSETS)).then(() => self.skipWaiting()));
     });
     self.addEventListener('activate', e => {
-      e.waitUntil(caches.keys().then(keys => Promise.all(keys.filter(k => k !== CACHE).map(k => caches.delete(k)))).then(() => self.clients.claim()));
+      e.waitUntil(caches.keys().then(keys =>
+        Promise.all(keys.filter(k => k !== CACHE).map(k => caches.delete(k)))
+      ).then(() => self.clients.claim()));
     });
     self.addEventListener('fetch', e => {
       e.respondWith(caches.match(e.request).then(r => r || fetch(e.request)));
     });
-  `;
+
+    // ── Notificaciones programadas desde el SW ──
+    let swNotifTimers = [];
+
+    self.addEventListener('message', e => {
+      if (!e.data) return;
+
+      if (e.data.type === 'SCHEDULE_NOTIFS') {
+        // Limpiar timers anteriores
+        swNotifTimers.forEach(t => clearTimeout(t));
+        swNotifTimers = [];
+
+        const tasks = e.data.tasks || [];
+        const nowMins = e.data.nowMins || 0;
+
+        tasks.forEach(task => {
+          if (!task.time || !task.label) return;
+
+          const parts = task.time.split(':');
+          const taskMins = parseInt(parts[0]) * 60 + (parseInt(parts[1]) || 0);
+
+          // Aviso 10 min antes
+          const preDelay = (taskMins - 10 - nowMins) * 60 * 1000;
+          if (preDelay > 0 && preDelay < 16 * 60 * 60 * 1000) {
+            const t1 = setTimeout(() => {
+              // Verificar si la tarea ya fue completada via IDB
+              swCheckAndNotify(task, '⏰ En 10 minutos', task.time + ' — ' + task.label);
+            }, preDelay);
+            swNotifTimers.push(t1);
+          }
+
+          // Recordatorio exacto
+          const exactDelay = (taskMins - nowMins) * 60 * 1000;
+          if (exactDelay > 0 && exactDelay < 16 * 60 * 60 * 1000) {
+            const t2 = setTimeout(() => {
+              swCheckAndNotify(task, '🕷️ ¡Ahora! ' + task.time, '¿Completaste: ' + task.label + '?');
+            }, exactDelay);
+            swNotifTimers.push(t2);
+          }
+        });
+
+        // Responder confirmación
+        e.source && e.source.postMessage({ type: 'NOTIFS_SCHEDULED', count: swNotifTimers.length });
+      }
+
+      if (e.data.type === 'TASK_DONE') {
+        // El cliente marcó una tarea — guardar en SW para no notificar
+        const key = e.data.key;
+        swDoneKeys = swDoneKeys || new Set();
+        if (e.data.done) swDoneKeys.add(key);
+        else swDoneKeys.delete(key);
+      }
+
+      if (e.data.type === 'CANCEL_NOTIFS') {
+        swNotifTimers.forEach(t => clearTimeout(t));
+        swNotifTimers = [];
+      }
+    });
+
+    let swDoneKeys = new Set();
+
+    function swCheckAndNotify(task, title, body) {
+      const key = 'tl_' + task.dia + '_' + task.idx;
+      if (swDoneKeys.has(key)) return; // ya completada, no molestar
+
+      self.registration.showNotification(title, {
+        body: body,
+        icon: 'icon-192.png',
+        badge: 'icon-192.png',
+        vibrate: [200, 100, 200],
+        tag: 'horario-' + task.time,
+        renotify: true,
+        data: { url: self.location.origin + self.registration.scope }
+      });
+    }
+
+    // Click en notificación → abrir la app
+    self.addEventListener('notificationclick', e => {
+      e.notification.close();
+      const url = (e.notification.data && e.notification.data.url) || self.registration.scope;
+      e.waitUntil(clients.matchAll({ type: 'window' }).then(cs => {
+        const existing = cs.find(c => c.url.includes(url) && 'focus' in c);
+        if (existing) return existing.focus();
+        return clients.openWindow(url);
+      }));
+    });
+`;
   const blob = new Blob([swCode], { type: 'application/javascript' });
   const swUrl = URL.createObjectURL(blob);
   navigator.serviceWorker.register(swUrl).catch(() => {});
@@ -2808,6 +2898,13 @@ function tlRender(dia) {
 }
 
 function tlToggleItem(dia, idx) {
+  // Notificar al SW sobre el cambio
+  const key = tlGetKey(dia, idx);
+  const estado = tlLoadEstado(dia);
+  const newDone = !estado[idx];
+  navigator.serviceWorker && navigator.serviceWorker.ready.then(reg => {
+    reg.active && reg.active.postMessage({ type: 'TASK_DONE', key, done: newDone });
+  }).catch(() => {});
   const estado = tlLoadEstado(dia);
   estado[idx] = !estado[idx];
   tlSaveItem(dia, idx, estado[idx]);
@@ -2949,55 +3046,56 @@ function notifFireNative(title, body) {
 }
 
 function notifScheduleDay(dia) {
-  // Limpiar timers anteriores
+  if (!('serviceWorker' in navigator)) return;
+
+  const tasks = TAREAS_DIA[dia] || [];
+  const now = new Date();
+  const nowMins = now.getHours() * 60 + now.getMinutes();
+
+  // Filtrar tareas relevantes (no gap/sleep) y agregar índice y día
+  const filtered = tasks
+    .map((t, idx) => ({...t, idx, dia}))
+    .filter(t => !NOTIF_SKIP_TYPES.includes(t.type));
+
+  // Enviar al Service Worker para que programe
+  navigator.serviceWorker.ready.then(reg => {
+    if (reg.active) {
+      reg.active.postMessage({
+        type: 'SCHEDULE_NOTIFS',
+        tasks: filtered,
+        nowMins: nowMins
+      });
+    }
+  }).catch(() => {});
+
+  // También programar con setTimeout como fallback (cuando app está abierta)
   notifTimers.forEach(t => clearTimeout(t));
   notifTimers = [];
 
-  const tasks = TAREAS_DIA[dia] || [];
-  const nowMins = notifGetMinutesNow();
-
-  tasks.forEach((task, idx) => {
-    if (NOTIF_SKIP_TYPES.includes(task.type)) return;
-
+  filtered.forEach(task => {
     const taskMins = notifParseTime(task.time);
-    
-    // ── Aviso 10 min antes ──
-    const preAlertMins = taskMins - 10;
-    const preAlertDelay = (preAlertMins - nowMins) * 60 * 1000;
-    if (preAlertDelay > 0) {
-      const t1 = setTimeout(() => {
-        const key = tlGetKey(dia, idx);
-        let done = false;
-        try { done = localStorage.getItem(key) === '1'; } catch(e) {}
-        if (!done) {
-          notifFireNative(
-            '⏰ En 10 minutos — ' + task.time,
-            task.label
-          );
-        }
-      }, preAlertDelay);
-      notifTimers.push(t1);
-    }
-
-    // ── Recordatorio en el momento exacto si no completó ──
+    const preDelay  = (taskMins - 10 - nowMins) * 60 * 1000;
     const exactDelay = (taskMins - nowMins) * 60 * 1000;
-    if (exactDelay > 0) {
-      const t2 = setTimeout(() => {
-        const key = tlGetKey(dia, idx);
+
+    if (preDelay > 0) {
+      notifTimers.push(setTimeout(() => {
+        const key = tlGetKey(task.dia, task.idx);
         let done = false;
         try { done = localStorage.getItem(key) === '1'; } catch(e) {}
-        if (!done) {
-          notifFireNative(
-            '🕷️ ¡Ahora! — ' + task.time,
-            '¿Completaste: ' + task.label + '?'
-          );
-        }
-      }, exactDelay);
-      notifTimers.push(t2);
+        if (!done) notifFireNative('⏰ En 10 minutos — ' + task.time, task.label);
+      }, preDelay));
+    }
+    if (exactDelay > 0) {
+      notifTimers.push(setTimeout(() => {
+        const key = tlGetKey(task.dia, task.idx);
+        let done = false;
+        try { done = localStorage.getItem(key) === '1'; } catch(e) {}
+        if (!done) notifFireNative('🕷️ ¡Ahora! — ' + task.time, '¿Completaste: ' + task.label + '?');
+      }, exactDelay));
     }
   });
 
-  console.log('Notificaciones programadas:', notifTimers.length, 'para', dia);
+  console.log('Notificaciones programadas en SW + fallback:', filtered.length, 'tareas para', dia);
 }
 
 function notifRequestPermission() {
