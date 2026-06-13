@@ -1127,6 +1127,54 @@ body::before {
   scrollbar-color: rgba(200,57,43,.3) transparent;
 }
 
+/* ── Notas rápidas por día ── */
+.tl-notes {
+  margin: .4rem .9rem 1rem;
+  border-top: 1px solid rgba(200,57,43,.25);
+  padding-top: .8rem;
+}
+.tl-notes-head {
+  display: flex;
+  align-items: center;
+  gap: .4rem;
+  font-size: .82rem;
+  font-weight: 700;
+  color: var(--tx-h);
+  margin-bottom: .5rem;
+  letter-spacing: .02em;
+}
+.tl-notes-head .tl-notes-status {
+  margin-left: auto;
+  font-size: .7rem;
+  font-weight: 600;
+  color: var(--green);
+  opacity: 0;
+  transition: opacity .3s;
+}
+.tl-notes-head .tl-notes-status.show { opacity: 1; }
+#tl-notes-area {
+  width: 100%;
+  min-height: 70px;
+  max-height: 180px;
+  resize: vertical;
+  background: rgba(8,11,18,.6);
+  border: 1px solid rgba(200,57,43,.3);
+  border-radius: 10px;
+  color: var(--tx-m);
+  font-family: inherit;
+  font-size: .9rem;
+  line-height: 1.45;
+  padding: .65rem .8rem;
+  outline: none;
+  transition: border-color .2s, box-shadow .2s;
+  box-sizing: border-box;
+}
+#tl-notes-area::placeholder { color: rgba(255,255,255,.28); }
+#tl-notes-area:focus {
+  border-color: var(--red);
+  box-shadow: 0 0 0 3px rgba(200,57,43,.15);
+}
+
 /* Ítem de tarea */
 .tl-item {
   display: flex;
@@ -2544,6 +2592,7 @@ function show(id) {
   const map = { overview:0, lunes:1, martes:2, miercoles:3, jueves:4, viernes:5, sabado:6, domingo:7, silabos:8 };
   const btns = document.querySelectorAll('.nav-btn');
   const idx = map[id];
+  if (idx !== undefined) currentIdx = idx;
   if (btns[idx]) {
     btns[idx].classList.add('active');
     // Scroll the active nav button into view on mobile
@@ -2566,121 +2615,18 @@ document.addEventListener('keydown', (e) => {
 });
 
 
-// ══ PWA: Service Worker (cache offline) ══════════
-const SW_VERSION = 'horario-v6-notif-sw';
+// ══ PWA: Service Worker externo (cache offline + notificaciones) ══
+// Nota: se usa sw.js como archivo real porque los blob: URL no son
+// registrables como Service Worker en Chrome/Firefox (esquema inválido).
 if ('serviceWorker' in navigator) {
-  // Inline service worker as a blob
-  const swCode = `
-    const CACHE = '${SW_VERSION}';
-    const ASSETS = [self.location.href];
-
-    // ── Cache offline ──
-    self.addEventListener('install', e => {
-      e.waitUntil(caches.open(CACHE).then(c => c.addAll(ASSETS)).then(() => self.skipWaiting()));
-    });
-    self.addEventListener('activate', e => {
-      e.waitUntil(caches.keys().then(keys =>
-        Promise.all(keys.filter(k => k !== CACHE).map(k => caches.delete(k)))
-      ).then(() => self.clients.claim()));
-    });
-    self.addEventListener('fetch', e => {
-      e.respondWith(caches.match(e.request).then(r => r || fetch(e.request)));
-    });
-
-    // ── Notificaciones programadas desde el SW ──
-    let swNotifTimers = [];
-
-    self.addEventListener('message', e => {
-      if (!e.data) return;
-
-      if (e.data.type === 'SCHEDULE_NOTIFS') {
-        // Limpiar timers anteriores
-        swNotifTimers.forEach(t => clearTimeout(t));
-        swNotifTimers = [];
-
-        const tasks = e.data.tasks || [];
-        const nowMins = e.data.nowMins || 0;
-
-        tasks.forEach(task => {
-          if (!task.time || !task.label) return;
-
-          const parts = task.time.split(':');
-          const taskMins = parseInt(parts[0]) * 60 + (parseInt(parts[1]) || 0);
-
-          // Aviso 10 min antes
-          const preDelay = (taskMins - 10 - nowMins) * 60 * 1000;
-          if (preDelay > 0 && preDelay < 16 * 60 * 60 * 1000) {
-            const t1 = setTimeout(() => {
-              // Verificar si la tarea ya fue completada via IDB
-              swCheckAndNotify(task, '⏰ En 10 minutos', task.time + ' — ' + task.label);
-            }, preDelay);
-            swNotifTimers.push(t1);
-          }
-
-          // Recordatorio exacto
-          const exactDelay = (taskMins - nowMins) * 60 * 1000;
-          if (exactDelay > 0 && exactDelay < 16 * 60 * 60 * 1000) {
-            const t2 = setTimeout(() => {
-              swCheckAndNotify(task, '🕷️ ¡Ahora! ' + task.time, '¿Completaste: ' + task.label + '?');
-            }, exactDelay);
-            swNotifTimers.push(t2);
-          }
-        });
-
-        // Responder confirmación
-        e.source && e.source.postMessage({ type: 'NOTIFS_SCHEDULED', count: swNotifTimers.length });
-      }
-
-      if (e.data.type === 'TASK_DONE') {
-        // El cliente marcó una tarea — guardar en SW para no notificar
-        const key = e.data.key;
-        swDoneKeys = swDoneKeys || new Set();
-        if (e.data.done) swDoneKeys.add(key);
-        else swDoneKeys.delete(key);
-      }
-
-      if (e.data.type === 'CANCEL_NOTIFS') {
-        swNotifTimers.forEach(t => clearTimeout(t));
-        swNotifTimers = [];
-      }
-    });
-
-    let swDoneKeys = new Set();
-
-    function swCheckAndNotify(task, title, body) {
-      const key = 'tl_' + task.dia + '_' + task.idx;
-      if (swDoneKeys.has(key)) return; // ya completada, no molestar
-
-      self.registration.showNotification(title, {
-        body: body,
-        icon: 'icon-192.png',
-        badge: 'icon-192.png',
-        vibrate: [200, 100, 200],
-        tag: 'horario-' + task.time,
-        renotify: true,
-        data: { url: self.location.origin + self.registration.scope }
-      });
-    }
-
-    // Click en notificación → abrir la app
-    self.addEventListener('notificationclick', e => {
-      e.notification.close();
-      const url = (e.notification.data && e.notification.data.url) || self.registration.scope;
-      e.waitUntil(clients.matchAll({ type: 'window' }).then(cs => {
-        const existing = cs.find(c => c.url.includes(url) && 'focus' in c);
-        if (existing) return existing.focus();
-        return clients.openWindow(url);
-      }));
-    });
-`;
-  const blob = new Blob([swCode], { type: 'application/javascript' });
-  const swUrl = URL.createObjectURL(blob);
-  navigator.serviceWorker.register(swUrl).catch(() => {});
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('sw.js').catch(() => {});
+  });
 }
 
 // ══ PWA: Install prompt ══════════════════════════
 let deferredPrompt = null;
-const pwaBanner = document.getElementById('pwa-pwaBanner');
+const pwaBanner = document.getElementById('pwa-banner');
 const iosHint = document.getElementById('ios-hint');
 const installBtn = document.getElementById('pwa-install-btn');
 const closeBtn = document.getElementById('pwa-close');
@@ -2905,8 +2851,7 @@ function tlToggleItem(dia, idx) {
   navigator.serviceWorker && navigator.serviceWorker.ready.then(reg => {
     reg.active && reg.active.postMessage({ type: 'TASK_DONE', key, done: newDone });
   }).catch(() => {});
-  const estado = tlLoadEstado(dia);
-  estado[idx] = !estado[idx];
+  estado[idx] = newDone;
   tlSaveItem(dia, idx, estado[idx]);
 
   const item = document.querySelector(`[data-idx="${idx}"]`);
@@ -2950,8 +2895,35 @@ function tlSetDia(dia) {
     t.classList.toggle('active', t.dataset.dia === dia);
   });
   tlRender(dia);
+  tlLoadNotas(dia);
   const hoy = DIAS_MAP[new Date().getDay()];
   if (dia === hoy) notifScheduleDay(dia);
+}
+
+/* ── Notas rápidas por día (localStorage) ── */
+let tlNotasTimer = null;
+
+function tlNotasKey(dia) { return 'tl_notas_' + dia; }
+
+function tlLoadNotas(dia) {
+  const area = document.getElementById('tl-notes-area');
+  if (!area) return;
+  let val = '';
+  try { val = localStorage.getItem(tlNotasKey(dia)) || ''; } catch(e) {}
+  area.value = val;
+}
+
+function tlSaveNotas() {
+  const area = document.getElementById('tl-notes-area');
+  if (!area) return;
+  const dia = tlDiaActivo || tlGetHoy();
+  try { localStorage.setItem(tlNotasKey(dia), area.value); } catch(e) {}
+  const status = document.getElementById('tl-notes-status');
+  if (status) {
+    status.classList.add('show');
+    clearTimeout(tlNotasTimer);
+    tlNotasTimer = setTimeout(() => status.classList.remove('show'), 1200);
+  }
 }
 
 function tlOpen() {
@@ -3000,9 +2972,45 @@ let notifTimers = [];
 let notifBannerTimer = null;
 
 function notifParseTime(str) {
-  // "5:00" → minutos desde medianoche
+  // Heurística simple para horas sueltas: 1-4 = PM (no hay clases 1-4am).
+  // Para listas completas usar notifBuild24h, que es más preciso.
   const parts = str.trim().split(':');
-  return parseInt(parts[0]) * 60 + (parseInt(parts[1]) || 0);
+  let h = parseInt(parts[0]);
+  const m = parseInt(parts[1]) || 0;
+  if (h >= 1 && h <= 4) h += 12;
+  return h * 60 + m;
+}
+
+// Convierte la lista de tareas de un día (orden cronológico) a minutos 24h
+// reales. La jornada arranca en la madrugada (4-5am) y avanza; cruzamos a PM
+// cuando el reloj retrocede. No se fuerza 1-4 a PM de entrada porque el día
+// real empieza con "4:30 despertar" (AM).
+function notifBuild24h(tasks) {
+  let isPM = false;
+  let prevMins = -1;
+  return tasks.map(t => {
+    const parts = t.time.trim().split(':');
+    let h12 = parseInt(parts[0]);
+    const m = parseInt(parts[1]) || 0;
+
+    // Hora base en 24h según el estado AM/PM actual
+    let h = h12;
+    if (isPM) {
+      if (h12 !== 12) h += 12;       // 1pm→13, 6pm→18, 12pm queda 12
+    } else {
+      if (h12 === 12) h = 12;        // mediodía sin cruzar aún
+    }
+    let mins = h * 60 + m;
+
+    // Si retrocede respecto a la anterior, es que cruzamos a la tarde
+    if (mins < prevMins && !isPM) {
+      isPM = true;
+      h = (h12 === 12) ? 12 : h12 + 12;
+      mins = h * 60 + m;
+    }
+    prevMins = mins;
+    return { ...t, mins };
+  });
 }
 
 function notifGetMinutesNow() {
@@ -3052,8 +3060,9 @@ function notifScheduleDay(dia) {
   const now = new Date();
   const nowMins = now.getHours() * 60 + now.getMinutes();
 
-  // Filtrar tareas relevantes (no gap/sleep) y agregar índice y día
-  const filtered = tasks
+  // Convertir a 24h reales (desambigua 6am vs 6pm por orden cronológico),
+  // luego filtrar gap/sleep. mins ya viene calculado y correcto.
+  const filtered = notifBuild24h(tasks)
     .map((t, idx) => ({...t, idx, dia}))
     .filter(t => !NOTIF_SKIP_TYPES.includes(t.type));
 
@@ -3073,7 +3082,7 @@ function notifScheduleDay(dia) {
   notifTimers = [];
 
   filtered.forEach(task => {
-    const taskMins = notifParseTime(task.time);
+    const taskMins = task.mins;
     const preDelay  = (taskMins - 10 - nowMins) * 60 * 1000;
     const exactDelay = (taskMins - nowMins) * 60 * 1000;
 
@@ -3480,6 +3489,11 @@ document.addEventListener('DOMContentLoaded', () => {
   notifInit();
   evalBuildPanel();
   pomoInit();
+  const notesArea = document.getElementById('tl-notes-area');
+  if (notesArea && !notesArea.dataset.bound) {
+    notesArea.dataset.bound = '1';
+    notesArea.addEventListener('input', tlSaveNotas);
+  }
 });
 if (document.readyState === 'complete' || document.readyState === 'interactive') {
   tlUpdateBadge();
@@ -3572,6 +3586,15 @@ if (document.readyState === 'complete' || document.readyState === 'interactive')
 
   <!-- Lista -->
   <div id="tl-list-wrap"></div>
+
+  <!-- Notas rápidas del día -->
+  <div class="tl-notes">
+    <div class="tl-notes-head">
+      <span>📝 Notas del día</span>
+      <span class="tl-notes-status" id="tl-notes-status">Guardado ✓</span>
+    </div>
+    <textarea id="tl-notes-area" placeholder="Apunta lo importante de hoy: temas que repasar, dudas para el lab, recordatorios…"></textarea>
+  </div>
 
   <!-- Botón limpiar -->
   <button id="tl-clear-btn" onclick="tlClearDone()">Limpiar completadas</button>
