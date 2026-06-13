@@ -1311,6 +1311,36 @@ body::before {
 }
 #tl-clear-btn:hover { background: rgba(200,57,43,.2); }
 
+/* Respaldo de datos */
+#tl-backup-row {
+  display: flex;
+  gap: .5rem;
+  margin: .2rem .9rem .5rem;
+}
+.tl-backup-btn {
+  flex: 1;
+  padding: .55rem;
+  background: rgba(42,86,176,.12);
+  border: 1.5px solid rgba(42,86,176,.35);
+  border-radius: 10px;
+  color: #9ec1f7;
+  font-size: .78rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all .2s;
+  -webkit-tap-highlight-color: transparent;
+}
+.tl-backup-btn:hover { background: rgba(42,86,176,.22); }
+#tl-backup-msg {
+  margin: 0 .9rem .8rem;
+  font-size: .76rem;
+  text-align: center;
+  min-height: 1em;
+  transition: opacity .3s;
+}
+#tl-backup-msg.ok  { color: #6ee7a8; }
+#tl-backup-msg.err { color: #f7a0a0; }
+
 /* Responsive tablet/desktop */
 @media (min-width: 768px) {
   #tl-panel {
@@ -1407,6 +1437,57 @@ body::before {
 #notif-enable-btn:hover { border-color: rgba(100,120,255,.7); color:#fff; }
 #notif-enable-btn.visible { display: flex; }
 
+
+/* ══ COUNTDOWN PRÓXIMA EVALUACIÓN ══ */
+#exam-countdown {
+  display: flex;
+  align-items: center;
+  gap: .85rem;
+  max-width: 760px;
+  margin: .75rem auto 0;
+  padding: .7rem .9rem;
+  background: linear-gradient(135deg, var(--red-bg), var(--sblue-bg));
+  border: 1px solid var(--red-bd);
+  border-left: 4px solid var(--red);
+  border-radius: 12px;
+  cursor: pointer;
+  transition: transform .15s, box-shadow .15s, border-color .15s;
+  box-shadow: 0 2px 12px var(--red-glow);
+}
+#exam-countdown:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 18px var(--red-glow);
+  border-left-color: var(--red-l);
+}
+#exam-countdown.ec-urgent {
+  border-left-color: var(--red-l);
+  animation: ecPulse 2s ease-in-out infinite;
+}
+@keyframes ecPulse {
+  0%,100% { box-shadow: 0 2px 12px var(--red-glow); }
+  50%     { box-shadow: 0 2px 20px rgba(232,69,69,.45); }
+}
+.ec-left {
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  min-width: 54px; padding: .2rem .35rem;
+  background: var(--red); border-radius: 9px; line-height: 1;
+}
+.ec-days { font-size: 1.5rem; font-weight: 800; color: #fff; }
+.ec-days-label {
+  font-size: .62rem; font-weight: 600; color: rgba(255,255,255,.85);
+  text-transform: uppercase; letter-spacing: .04em; margin-top: 2px;
+}
+.ec-body { flex: 1; min-width: 0; }
+.ec-title {
+  font-size: .92rem; font-weight: 700; color: var(--tx-h);
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.ec-detail {
+  font-size: .76rem; color: var(--tx-m);
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin-top: 2px;
+}
+.ec-arrow { font-size: 1.6rem; color: var(--red-l); font-weight: 300; flex-shrink: 0; }
 
 /* ══ WIDGET EVALUACIONES PRÓXIMAS ══ */
 #eval-widget {
@@ -1862,6 +1943,19 @@ body::before {
     <button class="nav-btn free"     onclick="show('domingo')">DOM LIBRE</button>
     <button class="nav-btn"          onclick="show('silabos')">SÍLABOS</button>
   </nav>
+</div>
+
+<!-- ══ COUNTDOWN PRÓXIMA EVALUACIÓN ═══════════ -->
+<div id="exam-countdown" onclick="evalToggle()" style="display:none">
+  <div class="ec-left">
+    <span class="ec-days" id="ec-days">—</span>
+    <span class="ec-days-label" id="ec-days-label">días</span>
+  </div>
+  <div class="ec-body">
+    <div class="ec-title" id="ec-title">—</div>
+    <div class="ec-detail" id="ec-detail">—</div>
+  </div>
+  <div class="ec-arrow">›</div>
 </div>
 
 <div style="padding-top:.1rem"></div>
@@ -2766,9 +2860,57 @@ function actualizarBloque(id, info) {
   }
 }
 
-// Ejecutar al cargar
+// ══ COUNTDOWN PRÓXIMA EVALUACIÓN ══
+// Reutiliza EVAL_DATA + evalDiasHasta. Busca la evaluación más próxima
+// (de la semana actual en adelante) priorizando las de mayor peso.
+function actualizarCountdown() {
+  const banner = document.getElementById('exam-countdown');
+  if (!banner || typeof EVAL_DATA === 'undefined') return;
 
-// ══ TASK LIST SPIDER-MAN ══
+  const semActual = (typeof evalGetSemActual === 'function') ? evalGetSemActual() : getSemanaActual();
+  const prioridad = { red: 3, yellow: 2, orange: 1, blue: 0 };
+
+  let elegida = null;
+  // Buscar desde la semana actual hasta la 17
+  for (let s = semActual; s <= 17; s++) {
+    const evals = EVAL_DATA[String(s)] || [];
+    if (!evals.length) continue;
+    const dias = (typeof evalDiasHasta === 'function')
+      ? evalDiasHasta(s)
+      : Math.ceil((new Date(SEM1_START.getTime() + (s-1)*7*864e5) - new Date().setHours(0,0,0,0)) / 864e5);
+    if (dias < 0) continue; // ya pasó
+    // Elegir la de mayor peso dentro de esa semana
+    const top = [...evals].sort((a,b) => (prioridad[b.color]||0) - (prioridad[a.color]||0))[0];
+    elegida = { ev: top, dias, sem: s, total: evals.length };
+    break;
+  }
+
+  if (!elegida) { banner.style.display = 'none'; return; }
+
+  const { ev, dias, sem, total } = elegida;
+  const dEl   = document.getElementById('ec-days');
+  const dLbl  = document.getElementById('ec-days-label');
+  const tEl   = document.getElementById('ec-title');
+  const detEl = document.getElementById('ec-detail');
+
+  // Número de días
+  if (dias === 0)      { dEl.textContent = '¡HOY!'; dEl.style.fontSize = '1rem'; dLbl.textContent = 'semana'; }
+  else if (dias === 1) { dEl.textContent = '1';  dEl.style.fontSize = '1.5rem'; dLbl.textContent = 'día'; }
+  else                 { dEl.textContent = dias; dEl.style.fontSize = '1.5rem'; dLbl.textContent = 'días'; }
+
+  // Limpiar emojis de alerta del tipo para el título
+  const tipoLimpio = ev.tipo.replace(/[⚠️🔴]/g, '').trim();
+  tEl.textContent = `${tipoLimpio} · ${ev.curso}`;
+
+  const extra = total > 1 ? ` · +${total - 1} más esa semana` : '';
+  detEl.textContent = `Sem ${sem} · ${ev.detalle}${extra}`;
+
+  // Urgencia: ≤7 días pulsa
+  banner.classList.toggle('ec-urgent', dias <= 7);
+  banner.style.display = 'flex';
+}
+
+
 const TAREAS_DIA = {"lunes":[{"time":"5:00","label":"Despertar + aseo rápido","type":"sleep"},{"time":"5:20","label":"Ejercicio — 30 min cardio ligero","type":"exercise"},{"time":"5:50","label":"Estudio Locomotor — tema de la semana","type":"study"},{"time":"6:50","label":"Biología Molecular — tema de la semana","type":"study"},{"time":"7:50","label":"Cuestionario previo Bioquímica","type":"task"},{"time":"8:20","label":"Desayuno + preparar bolso para UPAO","type":"gap"},{"time":"8:50","label":"Traslado Sullana → UPAO","type":"gap"},{"time":"9:45","label":"CLASE: Biología Molecular — Teoría","type":"class"},{"time":"11:30","label":"CLASE: Bioquímica Médica — Teoría","type":"class"},{"time":"1:20","label":"Almuerzo en UPAO","type":"gap"},{"time":"2:00","label":"Lectura previa Excretor (aula invertida)","type":"study"},{"time":"3:00","label":"Avance TIN Biología Molecular","type":"task"},{"time":"4:10","label":"CLASE: Sistema Excretor — Teoría","type":"class"},{"time":"6:00","label":"CLASE: Aparato Locomotor — Teoría","type":"class"},{"time":"7:45","label":"Regreso UPAO → Sullana","type":"gap"},{"time":"8:40","label":"Repaso rápido Locomotor — lo visto hoy","type":"study"},{"time":"9:00","label":"Cena + preparar bolso para mañana martes","type":"gap"},{"time":"9:30","label":"DORMIR — obligatorio (sale 4:30am)","type":"sleep"}],"martes":[{"time":"4:30","label":"Despertar — día más largo del ciclo","type":"sleep"},{"time":"4:30","label":"✅ Llevar: bata, guantes, cuaderno lab, lapicero, lonchera, snacks","type":"task"},{"time":"5:00","label":"Desayuno fuerte + preparar todo","type":"gap"},{"time":"6:10","label":"Traslado Sullana → UPAO","type":"gap"},{"time":"7:00","label":"LAB: Biología Molecular 🧥 BATA — PCR, electroforesis (3h35)","type":"class"},{"time":"10:35","label":"Cambio de aula rápido","type":"gap"},{"time":"10:40","label":"LAB: Sistema Excretor 🧥 BATA — anotar resultados (3h35)","type":"class"},{"time":"2:20","label":"LAB: Casos Integradores 🧥 BATA — caso semanal (3h35)","type":"class"},{"time":"6:00","label":"LAB: Aparato Locomotor 🧥 BATA — pre-test + oral cadáver (3h35)","type":"class"},{"time":"9:35","label":"Regreso UPAO → Sullana","type":"gap"},{"time":"10:30","label":"Cena mínima y dormir","type":"sleep"}],"miercoles":[{"time":"6:00","label":"Despertar + aseo","type":"sleep"},{"time":"6:30","label":"Ejercicio — 30 min","type":"exercise"},{"time":"7:00","label":"📖 Estudio previo guía Bioquímica — PRIORIDAD (las preguntas del lab salen de aquí)","type":"study"},{"time":"7:50","label":"Desayuno rápido + preparar bolso","type":"gap"},{"time":"7:50","label":"✅ Llevar: bata, guantes, cuaderno lab, lapicero","type":"task"},{"time":"8:00","label":"Traslado Sullana → UPAO","type":"gap"},{"time":"9:45","label":"CLASE: Comunicación I — Teoría","type":"class"},{"time":"11:30","label":"LAB: Bioquímica Médica 🧥 BATA — llenar informe durante el lab","type":"class"},{"time":"12:25","label":"⏱️ Informe Bioquímica — completar y subir a EVA (máx 10 min)","type":"task"},{"time":"12:35","label":"Almuerzo + descanso real","type":"gap"},{"time":"2:00","label":"Lectura Club Comunicación — revisar antes de entrar","type":"study"},{"time":"2:20","label":"CLASE: Comunicación I — Práctica","type":"class"},{"time":"7:45","label":"Regreso UPAO → Sullana","type":"gap"},{"time":"8:40","label":"Cena + verificar subida informe en EVA","type":"task"},{"time":"9:00","label":"Repaso Locomotor — estructuras de la semana","type":"study"},{"time":"10:30","label":"Dormir","type":"sleep"}],"jueves":[{"time":"5:30","label":"Despertar + aseo","type":"sleep"},{"time":"6:00","label":"Ejercicio — 1.5h","type":"exercise"},{"time":"7:30","label":"Locomotor — Estructuras de la semana (Atlas + guía)","type":"study"},{"time":"7:45","label":"Locomotor — 5 preguntas tipo pretest OPM","type":"study"},{"time":"8:45","label":"Excretor — Fisiología renal semana actual","type":"study"},{"time":"8:55","label":"Excretor — Preguntas tipo post-test","type":"study"},{"time":"9:45","label":"Bioquímica — Vías metabólicas de la semana","type":"study"},{"time":"9:55","label":"Bioquímica — Preguntas integradoras","type":"study"},{"time":"10:55","label":"TIN Biología Molecular — avance artículo","type":"task"},{"time":"11:05","label":"Lecturas Comunicación — Club semanal","type":"task"},{"time":"11:55","label":"Biología Molecular — Teoría semana","type":"study"},{"time":"12:00","label":"BioMol — Preguntas tipo examen de unidad","type":"study"},{"time":"1:00","label":"Repaso integrador del día — conectar los 4 cursos","type":"study"},{"time":"2:10","label":"Locomotor — Repaso final estructuras en voz alta","type":"study"}],"viernes":[{"time":"5:30","label":"Despertar + aseo","type":"sleep"},{"time":"6:00","label":"Ejercicio — 1.5h","type":"exercise"},{"time":"7:30","label":"Locomotor — Estructuras disecadas del lab del martes","type":"study"},{"time":"7:45","label":"Locomotor — Pretest 5 preguntas tipo OPM","type":"study"},{"time":"8:45","label":"Locomotor — Simulacro oral en voz alta (como si fuera el sábado)","type":"study"},{"time":"8:55","label":"Excretor — Preparar práctica del sábado","type":"study"},{"time":"9:55","label":"Bioquímica — Preparar práctica del sábado","type":"study"},{"time":"10:05","label":"Avance informe académico Comunicación","type":"task"},{"time":"10:45","label":"Biología Molecular — Mecanismos moleculares + TIN","type":"study"},{"time":"11:45","label":"Casos Integradores — Conectar temas de la semana","type":"study"},{"time":"11:55","label":"Locomotor — Último repaso oral en voz alta antes del sábado","type":"study"},{"time":"10:30","label":"Dormir — mañana sábado 4:30am","type":"sleep"}],"sabado":[{"time":"4:30","label":"Despertar + desayuno fuerte","type":"sleep"},{"time":"4:30","label":"✅ Llevar: bata, guantes, cuaderno lab, atlas, lapicero, lonchera","type":"task"},{"time":"5:30","label":"Repaso final Locomotor — pretest 5 preguntas","type":"study"},{"time":"6:20","label":"Repaso final Bioquímica — técnicas del lab","type":"study"},{"time":"7:05","label":"Traslado Sullana → UPAO","type":"gap"},{"time":"7:55","label":"PRÁCTICA: Bioquímica Médica 🧥 BATA — CALIFICADO","type":"class"},{"time":"10:35","label":"Repaso Locomotor — oral cadáver estructuras","type":"study"},{"time":"11:25","label":"Almuerzo + descanso","type":"gap"},{"time":"12:15","label":"Repaso Excretor — tema semana actual","type":"study"},{"time":"1:15","label":"Locomotor — Repasar exposición asignada en voz alta","type":"study"},{"time":"2:20","label":"PRÁCTICA: Sistema Excretor 🧥 BATA — CALIFICADO","type":"class"},{"time":"4:05","label":"Locomotor — Prep oral sábado: repasar exposición + informe práctica","type":"study"},{"time":"5:05","label":"Siesta corta — 30 min (programar alarma)","type":"sleep"},{"time":"5:35","label":"Activación post-siesta: comer, agua, caminar","type":"gap"},{"time":"6:15","label":"Repaso ligero Locomotor — antes del oral","type":"study"},{"time":"7:30","label":"Descanso — cerrar apuntes, relajarse","type":"gap"},{"time":"7:50","label":"PRÁCTICA: Aparato Locomotor 🧥 BATA — EXPOSICIÓN + ORAL","type":"class"},{"time":"9:35","label":"Regreso UPAO → Sullana","type":"gap"},{"time":"11:00","label":"Dormir — mañana domingo 10.5h libres","type":"sleep"}],"domingo":[{"time":"8:00","label":"Despertar tranquilo + desayuno con calma","type":"sleep"},{"time":"8:30","label":"Ejercicio — 1.5h","type":"exercise"},{"time":"10:00","label":"Bioquímica — Repaso vías metabólicas semana","type":"study"},{"time":"10:15","label":"Biología Molecular — Repaso teoría semana","type":"study"},{"time":"11:15","label":"Informe académico Comunicación — avance/revisión","type":"task"},{"time":"11:25","label":"TIN Biología Molecular — avance artículo","type":"task"},{"time":"12:15","label":"Casos Integradores — revisar encuesta + pendientes semana","type":"task"},{"time":"1:15","label":"Excretor — Integración semanal","type":"study"},{"time":"2:15","label":"Locomotor — Integración estructuras semana","type":"study"},{"time":"2:25","label":"Integración final — conectar los 4 cursos","type":"study"},{"time":"3:25","label":"Preparar lecturas previas del lunes","type":"task"},{"time":"11:00","label":"Dormir","type":"sleep"}]};
 
 const DIAS_MAP = {
@@ -2959,7 +3101,90 @@ function tlClearDone() {
   tlUpdateBadge();
 }
 
-// Cerrar con tecla Escape
+// ══ RESPALDO DE DATOS (exportar / importar localStorage) ══
+// Guarda tareas marcadas, notas por día, ajustes y stats de pomodoro.
+function datosRecolectar() {
+  const data = {};
+  try {
+    for (let i = 0; i < localStorage.length; i++) {
+      const k = localStorage.key(i);
+      // Solo las claves de esta app
+      if (k && (k.startsWith('tl_') || k === 'notif_enabled' || k === 'pomo_stats')) {
+        data[k] = localStorage.getItem(k);
+      }
+    }
+  } catch (e) {}
+  return data;
+}
+
+function datosBackupMsg(texto, tipo) {
+  const el = document.getElementById('tl-backup-msg');
+  if (!el) return;
+  el.textContent = texto;
+  el.className = tipo || '';
+  if (texto) setTimeout(() => { el.textContent = ''; el.className = ''; }, 4000);
+}
+
+function datosExportar() {
+  const payload = {
+    app: 'horario-upao',
+    version: 1,
+    exportado: new Date().toISOString(),
+    datos: datosRecolectar()
+  };
+  try {
+    const blob = new Blob([JSON.stringify(payload, null, 2)], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    const fecha = new Date().toISOString().slice(0, 10);
+    a.href = url;
+    a.download = `horario-upao-respaldo-${fecha}.json`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    setTimeout(() => URL.revokeObjectURL(url), 1000);
+    datosBackupMsg('✓ Respaldo descargado', 'ok');
+  } catch (e) {
+    datosBackupMsg('✗ No se pudo exportar', 'err');
+  }
+}
+
+function datosImportar(event) {
+  const file = event.target.files && event.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = (e) => {
+    try {
+      const parsed = JSON.parse(e.target.result);
+      if (parsed.app !== 'horario-upao' || !parsed.datos) {
+        datosBackupMsg('✗ Archivo no válido', 'err');
+        event.target.value = '';
+        return;
+      }
+      let n = 0;
+      Object.keys(parsed.datos).forEach(k => {
+        if (k.startsWith('tl_') || k === 'notif_enabled' || k === 'pomo_stats') {
+          localStorage.setItem(k, parsed.datos[k]);
+          n++;
+        }
+      });
+      // Refrescar la UI con los datos restaurados
+      try {
+        tlSetDia(tlDiaActivo || tlGetHoy());
+        tlUpdateBadge();
+        if (typeof pomoRefreshStats === 'function') pomoRefreshStats();
+      } catch (_) {}
+      datosBackupMsg(`✓ Restaurado (${n} elementos)`, 'ok');
+    } catch (err) {
+      datosBackupMsg('✗ Error al leer el archivo', 'err');
+    }
+    event.target.value = ''; // permite reimportar el mismo archivo
+  };
+  reader.onerror = () => datosBackupMsg('✗ No se pudo leer el archivo', 'err');
+  reader.readAsText(file);
+}
+
+
 document.addEventListener('keydown', e => {
   if (e.key === 'Escape') tlClose();
 });
@@ -3150,7 +3375,7 @@ function notifInit() {
 
 
 // ══ WIDGET EVALUACIONES PRÓXIMAS ══
-const EVAL_DATA = {"1":[],"2":[{"curso":"Locomotor","tipo":"Pre-test","detalle":"Pre-test sem 1-2 (Generalidades + Articulaciones)","peso":"35% EP","color":"red"}],"3":[{"curso":"Locomotor","tipo":"⚠️ FORMATIVO 1","detalle":"Cubre sem 1-2-3 (Generalidades, Articulaciones, Cráneo)","peso":"15% EP1","color":"yellow"},{"curso":"Bioquímica","tipo":"Eval. semanal 1","detalle":"Fosforilación oxidativa, Krebs","peso":"30% EP1","color":"orange"},{"curso":"Excretor","tipo":"Examen Teórico 1 + Práctico 1","detalle":"Cubre sem 1-2-3 (Embriología, Histología, Anatomía)","peso":"Continua","color":"blue"}],"4":[{"curso":"BioMol","tipo":"⚠️ EXAMEN UNIDAD 1","detalle":"Cubre sem 1-3 (Macromoléculas, Enzimas, Ácidos Nucleicos)","peso":"50% EP1","color":"yellow"}],"5":[],"6":[{"curso":"Locomotor","tipo":"⚠️ FORMATIVO 2","detalle":"Cubre sem 4-5-6 (Columna, Miembro sup/inf, Muscular sup)","peso":"15% EP1","color":"yellow"},{"curso":"BioMol","tipo":"Examen Práctica EPR1","detalle":"Individual — laboratorio sem 1-6","peso":"25% EP1","color":"orange"},{"curso":"Excretor","tipo":"Examen Teórico 2","detalle":"Cubre sem 4-5-6 (Vascularización, Transporte, TFG)","peso":"Continua","color":"blue"}],"7":[{"curso":"BioMol","tipo":"⚠️ EXAMEN UNIDAD 2","detalle":"Cubre sem 4-6 (Replicación, Transcripción, Traducción)","peso":"50% EP1","color":"yellow"},{"curso":"BioMol","tipo":"⚠️ SUSTENTACIÓN TIN parcial","detalle":"Avance artículo de revisión grupal","peso":"25% EP1","color":"red"},{"curso":"Excretor","tipo":"Examen Práctico 2","detalle":"Cubre sem 4-5-6-7","peso":"Continua","color":"blue"}],"8":[{"curso":"Locomotor","tipo":"🔴 PARCIAL LOCOMOTOR","detalle":"20 MCQ teórico + Práctico cadáveres/esqueletos (U1-U2)","peso":"30% total","color":"red"},{"curso":"Excretor","tipo":"🔴 EVP EXCRETOR","detalle":"40 preguntas, 50 min (sem 1-7)","peso":"20% total","color":"red"},{"curso":"BioMol","tipo":"🔴 EVP BIOMOL","detalle":"Mínimo 20 preguntas (sem 1-7)","peso":"20% total","color":"red"},{"curso":"Bioquímica","tipo":"🔴 EVP BIOQUÍMICA","detalle":"20 preguntas, 4 alternativas (U1-U2)","peso":"20% total","color":"red"}],"9":[],"10":[],"11":[{"curso":"Locomotor","tipo":"⚠️ FORMATIVO 3","detalle":"Cubre sem 9-10-11 (Cadera, Pierna/Pie, Mímica/Masticación)","peso":"15% EP2","color":"yellow"},{"curso":"Excretor","tipo":"Examen Teórico 3 + Práctico 3","detalle":"Cubre sem 9-10-11 (Contracorriente, ADH, K+)","peso":"Continua","color":"blue"}],"12":[{"curso":"BioMol","tipo":"⚠️ EXAMEN UNIDAD 3","detalle":"Cubre sem 9-11 (Mutaciones, PCR, CRISPR, Ómicas)","peso":"50% EP2","color":"yellow"},{"curso":"Bioquímica","tipo":"Eval. semanal 4","detalle":"Bioquímica ejercicio + integración metabólica","peso":"30% EP2","color":"orange"}],"13":[],"14":[{"curso":"Locomotor","tipo":"⚠️ FORMATIVO 4","detalle":"Cubre sem 12-13-14 (Tronco, Abdomen, Fisiología muscular)","peso":"15% EP2","color":"yellow"},{"curso":"BioMol","tipo":"Examen Práctica EPR2","detalle":"Individual — laboratorio sem 9-14","peso":"25% EP2","color":"orange"},{"curso":"Bioquímica","tipo":"Eval. semanal 5","detalle":"Comunicación celular y sistema endocrino","peso":"30% EP2","color":"orange"}],"15":[{"curso":"BioMol","tipo":"⚠️ EXAMEN UNIDAD 4","detalle":"Cubre sem 12-14 (Infecciones, Cáncer, Metabolismo molecular)","peso":"50% EP2","color":"yellow"},{"curso":"BioMol","tipo":"⚠️ SUSTENTACIÓN TIN final","detalle":"Exposición grupal artículo completo ante jurado","peso":"25% EP2","color":"red"},{"curso":"Bioquímica","tipo":"⚠️ JORNADA INVESTIGACIÓN","detalle":"Exposición trabajo TI2 ante jurado","peso":"25% EP2","color":"red"},{"curso":"Excretor","tipo":"Examen Teórico 4 + Práctico 4","detalle":"Cubre sem 12-13-14 (Ca/P, Ácido-Base, Glucosa/Urea)","peso":"Continua","color":"blue"}],"16":[{"curso":"Locomotor","tipo":"🔴 FINAL LOCOMOTOR","detalle":"20 MCQ teórico + Práctico cadáveres/esqueletos (U3-U4)","peso":"30% total","color":"red"},{"curso":"Excretor","tipo":"🔴 EVF EXCRETOR","detalle":"40 preguntas, 50 min (sem 9-15)","peso":"25% total","color":"red"},{"curso":"BioMol","tipo":"🔴 EVF BIOMOL","detalle":"Mínimo 20 preguntas (sem 9-15)","peso":"25% total","color":"red"},{"curso":"Bioquímica","tipo":"🔴 2do PARCIAL BIOQUÍMICA","detalle":"20 preguntas (sem 7-15)","peso":"Parcial","color":"red"}],"17":[{"curso":"Bioquímica","tipo":"🔴 EXAMEN FINAL BIOQUÍMICA","detalle":"Todo el curso — 20 preguntas","peso":"25% total","color":"red"}]};
+const EVAL_DATA = {"1":[],"2":[{"curso":"Locomotor","tipo":"Pre-test","detalle":"Pre-test sem 1-2 (Generalidades + Articulaciones)","peso":"35% EP","color":"red"}],"3":[{"curso":"Locomotor","tipo":"⚠️ FORMATIVO 1","detalle":"Cubre sem 1-2-3 (Generalidades, Articulaciones, Cráneo)","peso":"15% EP1","color":"yellow"},{"curso":"Bioquímica","tipo":"Eval. semanal 1","detalle":"Fosforilación oxidativa, Krebs","peso":"30% EP1","color":"orange"},{"curso":"Excretor","tipo":"Examen Teórico 1 + Práctico 1","detalle":"Cubre sem 1-2-3 (Embriología, Histología, Anatomía)","peso":"Continua","color":"blue"}],"4":[{"curso":"BioMol","tipo":"⚠️ EXAMEN UNIDAD 1","detalle":"Cubre sem 1-3 (Macromoléculas, Enzimas, Ácidos Nucleicos)","peso":"50% EP1","color":"yellow"}],"5":[],"6":[{"curso":"Locomotor","tipo":"⚠️ FORMATIVO 2","detalle":"Cubre sem 4-5-6 (Columna, Miembro sup/inf, Muscular sup)","peso":"15% EP1","color":"yellow"},{"curso":"BioMol","tipo":"Examen Práctica EPR1","detalle":"Individual — laboratorio sem 1-6","peso":"25% EP1","color":"orange"},{"curso":"Excretor","tipo":"Examen Teórico 2","detalle":"Cubre sem 4-5-6 (Vascularización, Transporte, TFG)","peso":"Continua","color":"blue"}],"7":[{"curso":"BioMol","tipo":"⚠️ EXAMEN UNIDAD 2","detalle":"Cubre sem 4-6 (Replicación, Transcripción, Traducción)","peso":"50% EP1","color":"yellow"},{"curso":"BioMol","tipo":"⚠️ SUSTENTACIÓN TIN parcial","detalle":"Avance artículo de revisión grupal","peso":"25% EP1","color":"red"},{"curso":"Excretor","tipo":"Examen Práctico 2","detalle":"Cubre sem 4-5-6-7","peso":"Continua","color":"blue"}],"8":[{"curso":"Locomotor","tipo":"🔴 PARCIAL LOCOMOTOR","detalle":"20 MCQ teórico + Práctico cadáveres/esqueletos (U1-U2)","peso":"30% total","color":"red"},{"curso":"Excretor","tipo":"🔴 EVP EXCRETOR","detalle":"40 preguntas, 50 min (sem 1-7)","peso":"20% total","color":"red"},{"curso":"BioMol","tipo":"🔴 EVP BIOMOL","detalle":"Mínimo 20 preguntas (sem 1-7)","peso":"20% total","color":"red"},{"curso":"Bioquímica","tipo":"🔴 EVP BIOQUÍMICA","detalle":"20 preguntas, 4 alternativas (U1-U2)","peso":"20% total","color":"red"}],"9":[],"10":[],"11":[{"curso":"Locomotor","tipo":"⚠️ FORMATIVO 3","detalle":"Cubre sem 9-10-11 (Cadera, Pierna/Pie, Mímica/Masticación)","peso":"15% EP2","color":"yellow"},{"curso":"Excretor","tipo":"Examen Teórico 3 + Práctico 3","detalle":"Cubre sem 9-10-11 (Contracorriente, ADH, K+)","peso":"Continua","color":"blue"},{"curso":"Casos Integr.","tipo":"⚠️ EXAMEN UNIDAD 3 (verificar fecha)","detalle":"Integra Locomotor + Excretor + BioMol (cara/cuello, regulación K+). 10 preg. opción múltiple, 20 min","peso":"40% del EP2","color":"yellow"}],"12":[{"curso":"BioMol","tipo":"⚠️ EXAMEN UNIDAD 3","detalle":"Cubre sem 9-11 (Mutaciones, PCR, CRISPR, Ómicas)","peso":"50% EP2","color":"yellow"},{"curso":"Bioquímica","tipo":"Eval. semanal 4","detalle":"Bioquímica ejercicio + integración metabólica","peso":"30% EP2","color":"orange"}],"13":[],"14":[{"curso":"Locomotor","tipo":"⚠️ FORMATIVO 4","detalle":"Cubre sem 12-13-14 (Tronco, Abdomen, Fisiología muscular)","peso":"15% EP2","color":"yellow"},{"curso":"BioMol","tipo":"Examen Práctica EPR2","detalle":"Individual — laboratorio sem 9-14","peso":"25% EP2","color":"orange"},{"curso":"Bioquímica","tipo":"Eval. semanal 5","detalle":"Comunicación celular y sistema endocrino","peso":"30% EP2","color":"orange"}],"15":[{"curso":"BioMol","tipo":"⚠️ EXAMEN UNIDAD 4","detalle":"Cubre sem 12-14 (Infecciones, Cáncer, Metabolismo molecular)","peso":"50% EP2","color":"yellow"},{"curso":"BioMol","tipo":"⚠️ SUSTENTACIÓN TIN final","detalle":"Exposición grupal artículo completo ante jurado","peso":"25% EP2","color":"red"},{"curso":"Bioquímica","tipo":"⚠️ JORNADA INVESTIGACIÓN","detalle":"Exposición trabajo TI2 ante jurado","peso":"25% EP2","color":"red"},{"curso":"Excretor","tipo":"Examen Teórico 4 + Práctico 4","detalle":"Cubre sem 12-13-14 (Ca/P, Ácido-Base, Glucosa/Urea)","peso":"Continua","color":"blue"}],"16":[{"curso":"Locomotor","tipo":"🔴 FINAL LOCOMOTOR","detalle":"20 MCQ teórico + Práctico cadáveres/esqueletos (U3-U4)","peso":"30% total","color":"red"},{"curso":"Excretor","tipo":"🔴 EVF EXCRETOR","detalle":"40 preguntas, 50 min (sem 9-15)","peso":"25% total","color":"red"},{"curso":"BioMol","tipo":"🔴 EVF BIOMOL","detalle":"Mínimo 20 preguntas (sem 9-15)","peso":"25% total","color":"red"},{"curso":"Bioquímica","tipo":"🔴 2do PARCIAL BIOQUÍMICA","detalle":"20 preguntas (sem 7-15)","peso":"Parcial","color":"red"}],"17":[{"curso":"Bioquímica","tipo":"🔴 EXAMEN FINAL BIOQUÍMICA","detalle":"Todo el curso — 20 preguntas","peso":"25% total","color":"red"}]};
 
 // Fechas inicio de semana (lunes de cada sem)
 const EVAL_SEM1 = new Date('2026-04-06');
@@ -3488,6 +3713,7 @@ document.addEventListener('DOMContentLoaded', () => {
   actualizarSemana();
   notifInit();
   evalBuildPanel();
+  actualizarCountdown();
   pomoInit();
   const notesArea = document.getElementById('tl-notes-area');
   if (notesArea && !notesArea.dataset.bound) {
@@ -3500,6 +3726,7 @@ if (document.readyState === 'complete' || document.readyState === 'interactive')
   actualizarSemana();
   notifInit();
   evalBuildPanel();
+  actualizarCountdown();
   pomoInit();
 }
 
@@ -3598,6 +3825,14 @@ if (document.readyState === 'complete' || document.readyState === 'interactive')
 
   <!-- Botón limpiar -->
   <button id="tl-clear-btn" onclick="tlClearDone()">Limpiar completadas</button>
+
+  <!-- Respaldo de datos -->
+  <div id="tl-backup-row">
+    <button class="tl-backup-btn" onclick="datosExportar()">⬇️ Exportar respaldo</button>
+    <button class="tl-backup-btn" onclick="document.getElementById('tl-import-file').click()">⬆️ Importar</button>
+    <input type="file" id="tl-import-file" accept="application/json,.json" style="display:none" onchange="datosImportar(event)">
+  </div>
+  <div id="tl-backup-msg"></div>
 </div>
 
 
