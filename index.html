@@ -1489,6 +1489,33 @@ body::before {
 }
 .ec-arrow { font-size: 1.6rem; color: var(--red-l); font-weight: 300; flex-shrink: 0; }
 
+/* ══ BOTÓN SILENCIAR SONIDOS ══ */
+#sfx-toggle {
+  position: fixed;
+  bottom: max(168px, calc(env(safe-area-inset-bottom,0px) + 168px));
+  left: max(24px, env(safe-area-inset-left, 24px));
+  z-index: 8999;
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  border: 1.5px solid var(--red-bd);
+  background: rgba(10,12,18,.82);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  font-size: 1.1rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 2px 10px rgba(0,0,0,.35);
+  transition: transform .15s, border-color .2s, background .2s, opacity .2s;
+  -webkit-tap-highlight-color: transparent;
+  padding: 0;
+}
+#sfx-toggle:hover { transform: scale(1.08); border-color: var(--red); }
+#sfx-toggle:active { transform: scale(.94); }
+#sfx-toggle.sfx-off { opacity: .6; border-color: rgba(255,255,255,.15); }
+
 /* ══ WIDGET EVALUACIONES PRÓXIMAS ══ */
 #eval-widget {
   position: fixed;
@@ -2794,6 +2821,142 @@ if (iosClose) {
 //  Generado automáticamente desde sílabos
 // ══════════════════════════════════════════
 
+// ══════════════════════════════════════════
+//  🕷️ MOTOR DE SONIDO SPIDER-MAN (Web Audio)
+//  Efectos sintetizados originales (sin archivos, sin licencia).
+//  Se puede silenciar; la preferencia se guarda en localStorage.
+// ══════════════════════════════════════════
+const SFX = {
+  ctx: null,
+  enabled: (() => { try { return localStorage.getItem('sfx_enabled') !== '0'; } catch(e) { return true; } }),
+  _on: true,
+
+  init() {
+    this._on = (() => { try { return localStorage.getItem('sfx_enabled') !== '0'; } catch(e) { return true; } })();
+  },
+
+  // El AudioContext debe crearse tras una interacción del usuario (política de navegadores)
+  _ac() {
+    if (!this.ctx) {
+      try { this.ctx = new (window.AudioContext || window.webkitAudioContext)(); }
+      catch(e) { return null; }
+    }
+    if (this.ctx.state === 'suspended') { try { this.ctx.resume(); } catch(e) {} }
+    return this.ctx;
+  },
+
+  // Desbloquea el audio en el primer gesto del usuario (toque/clic/tecla).
+  // Sin esto, el primer sonido se pierde porque el contexto aún está "suspended".
+  unlock() {
+    const ac = this._ac();
+    if (!ac) return;
+    if (ac.state === 'suspended') ac.resume().catch(()=>{});
+    // Reproducir un buffer silencioso "calienta" el motor en iOS/Safari
+    try {
+      const b = ac.createBuffer(1, 1, 22050);
+      const s = ac.createBufferSource();
+      s.buffer = b; s.connect(ac.destination); s.start(0);
+    } catch(e) {}
+  },
+
+  // Un tono con envolvente ADSR simple
+  _tone(freq, start, dur, type, peak, ac) {
+    const o = ac.createOscillator();
+    const g = ac.createGain();
+    o.type = type || 'sine';
+    o.frequency.setValueAtTime(freq, start);
+    g.gain.setValueAtTime(0.0001, start);
+    g.gain.exponentialRampToValueAtTime(peak, start + 0.012);
+    g.gain.exponentialRampToValueAtTime(0.0001, start + dur);
+    o.connect(g); g.connect(ac.destination);
+    o.start(start); o.stop(start + dur + 0.02);
+    return o;
+  },
+
+  toggle() {
+    this._on = !this._on;
+    try { localStorage.setItem('sfx_enabled', this._on ? '1' : '0'); } catch(e) {}
+    if (this._on) { this._ac(); this.thwip(); }  // feedback al reactivar
+    sfxUpdateBtn();
+    return this._on;
+  },
+
+  // ── "Thwip" del lanza-telarañas: barrido descendente rápido con ruido filtrado ──
+  thwip() {
+    if (!this._on) return;
+    const ac = this._ac(); if (!ac) return;
+    const t = ac.currentTime;
+    const o = ac.createOscillator();
+    const g = ac.createGain();
+    o.type = 'sawtooth';
+    o.frequency.setValueAtTime(900, t);
+    o.frequency.exponentialRampToValueAtTime(180, t + 0.13);
+    g.gain.setValueAtTime(0.0001, t);
+    g.gain.exponentialRampToValueAtTime(0.16, t + 0.01);
+    g.gain.exponentialRampToValueAtTime(0.0001, t + 0.16);
+    const lp = ac.createBiquadFilter();
+    lp.type = 'lowpass'; lp.frequency.setValueAtTime(2200, t);
+    o.connect(lp); lp.connect(g); g.connect(ac.destination);
+    o.start(t); o.stop(t + 0.18);
+  },
+
+  // ── Swoosh de telaraña al abrir el panel: barrido suave ascendente ──
+  swoosh() {
+    if (!this._on) return;
+    const ac = this._ac(); if (!ac) return;
+    const t = ac.currentTime;
+    const o = ac.createOscillator();
+    const g = ac.createGain();
+    o.type = 'sine';
+    o.frequency.setValueAtTime(260, t);
+    o.frequency.exponentialRampToValueAtTime(620, t + 0.18);
+    g.gain.setValueAtTime(0.0001, t);
+    g.gain.exponentialRampToValueAtTime(0.09, t + 0.04);
+    g.gain.exponentialRampToValueAtTime(0.0001, t + 0.22);
+    o.connect(g); g.connect(ac.destination);
+    o.start(t); o.stop(t + 0.24);
+  },
+
+  // ── Chime de victoria (Pomodoro completo): arpegio mayor ascendente ──
+  success() {
+    if (!this._on) return;
+    const ac = this._ac(); if (!ac) return;
+    const t = ac.currentTime;
+    const notas = [523.25, 659.25, 783.99, 1046.50]; // C5 E5 G5 C6
+    notas.forEach((f, i) => this._tone(f, t + i * 0.10, 0.32, 'triangle', 0.13, ac));
+  },
+
+  // ── "Sentido arácnico" (evaluación urgente): dos pulsos tensos ──
+  spideySense() {
+    if (!this._on) return;
+    const ac = this._ac(); if (!ac) return;
+    const t = ac.currentTime;
+    [0, 0.18].forEach(off => {
+      const o = ac.createOscillator();
+      const g = ac.createGain();
+      o.type = 'square';
+      o.frequency.setValueAtTime(440, t + off);
+      o.frequency.linearRampToValueAtTime(660, t + off + 0.1);
+      g.gain.setValueAtTime(0.0001, t + off);
+      g.gain.exponentialRampToValueAtTime(0.07, t + off + 0.02);
+      g.gain.exponentialRampToValueAtTime(0.0001, t + off + 0.14);
+      const bp = ac.createBiquadFilter();
+      bp.type = 'bandpass'; bp.frequency.value = 800; bp.Q.value = 6;
+      o.connect(bp); bp.connect(g); g.connect(ac.destination);
+      o.start(t + off); o.stop(t + off + 0.16);
+    });
+  }
+};
+
+function sfxUpdateBtn() {
+  const btn = document.getElementById('sfx-toggle');
+  if (!btn) return;
+  const on = SFX._on;
+  btn.textContent = on ? '🔊' : '🔇';
+  btn.title = on ? 'Sonidos activados (toca para silenciar)' : 'Sonidos silenciados (toca para activar)';
+  btn.classList.toggle('sfx-off', !on);
+}
+
 const SEM1_START = new Date('2026-04-06'); // Lunes semana 1
 
 function getSemanaActual() {
@@ -2907,6 +3070,12 @@ function actualizarCountdown() {
 
   // Urgencia: ≤7 días pulsa
   banner.classList.toggle('ec-urgent', dias <= 7);
+  // 🕸️ "Sentido arácnico" si hay evaluación urgente — solo una vez por sesión
+  if (dias <= 7 && !window._spideySensePlayed) {
+    window._spideySensePlayed = true;
+    // Pequeño retraso para que no choque con la carga inicial
+    setTimeout(() => SFX.spideySense(), 800);
+  }
   banner.style.display = 'flex';
 }
 
@@ -2995,6 +3164,7 @@ function tlToggleItem(dia, idx) {
   }).catch(() => {});
   estado[idx] = newDone;
   tlSaveItem(dia, idx, estado[idx]);
+  if (newDone) SFX.thwip();  // 🕸️ sonido solo al completar
 
   const item = document.querySelector(`[data-idx="${idx}"]`);
   if (item) {
@@ -3070,6 +3240,7 @@ function tlSaveNotas() {
 
 function tlOpen() {
   const hoy = tlGetHoy();
+  SFX.swoosh();  // 🕸️ swoosh al abrir
   document.getElementById('tl-overlay').classList.add('tl-open');
   document.getElementById('tl-panel').classList.add('tl-open');
   document.body.style.overflow = 'hidden';
@@ -3375,7 +3546,7 @@ function notifInit() {
 
 
 // ══ WIDGET EVALUACIONES PRÓXIMAS ══
-const EVAL_DATA = {"1":[],"2":[{"curso":"Locomotor","tipo":"Pre-test","detalle":"Pre-test sem 1-2 (Generalidades + Articulaciones)","peso":"35% EP","color":"red"}],"3":[{"curso":"Locomotor","tipo":"⚠️ FORMATIVO 1","detalle":"Cubre sem 1-2-3 (Generalidades, Articulaciones, Cráneo)","peso":"15% EP1","color":"yellow"},{"curso":"Bioquímica","tipo":"Eval. semanal 1","detalle":"Fosforilación oxidativa, Krebs","peso":"30% EP1","color":"orange"},{"curso":"Excretor","tipo":"Examen Teórico 1 + Práctico 1","detalle":"Cubre sem 1-2-3 (Embriología, Histología, Anatomía)","peso":"Continua","color":"blue"}],"4":[{"curso":"BioMol","tipo":"⚠️ EXAMEN UNIDAD 1","detalle":"Cubre sem 1-3 (Macromoléculas, Enzimas, Ácidos Nucleicos)","peso":"50% EP1","color":"yellow"}],"5":[],"6":[{"curso":"Locomotor","tipo":"⚠️ FORMATIVO 2","detalle":"Cubre sem 4-5-6 (Columna, Miembro sup/inf, Muscular sup)","peso":"15% EP1","color":"yellow"},{"curso":"BioMol","tipo":"Examen Práctica EPR1","detalle":"Individual — laboratorio sem 1-6","peso":"25% EP1","color":"orange"},{"curso":"Excretor","tipo":"Examen Teórico 2","detalle":"Cubre sem 4-5-6 (Vascularización, Transporte, TFG)","peso":"Continua","color":"blue"}],"7":[{"curso":"BioMol","tipo":"⚠️ EXAMEN UNIDAD 2","detalle":"Cubre sem 4-6 (Replicación, Transcripción, Traducción)","peso":"50% EP1","color":"yellow"},{"curso":"BioMol","tipo":"⚠️ SUSTENTACIÓN TIN parcial","detalle":"Avance artículo de revisión grupal","peso":"25% EP1","color":"red"},{"curso":"Excretor","tipo":"Examen Práctico 2","detalle":"Cubre sem 4-5-6-7","peso":"Continua","color":"blue"}],"8":[{"curso":"Locomotor","tipo":"🔴 PARCIAL LOCOMOTOR","detalle":"20 MCQ teórico + Práctico cadáveres/esqueletos (U1-U2)","peso":"30% total","color":"red"},{"curso":"Excretor","tipo":"🔴 EVP EXCRETOR","detalle":"40 preguntas, 50 min (sem 1-7)","peso":"20% total","color":"red"},{"curso":"BioMol","tipo":"🔴 EVP BIOMOL","detalle":"Mínimo 20 preguntas (sem 1-7)","peso":"20% total","color":"red"},{"curso":"Bioquímica","tipo":"🔴 EVP BIOQUÍMICA","detalle":"20 preguntas, 4 alternativas (U1-U2)","peso":"20% total","color":"red"}],"9":[],"10":[],"11":[{"curso":"Locomotor","tipo":"⚠️ FORMATIVO 3","detalle":"Cubre sem 9-10-11 (Cadera, Pierna/Pie, Mímica/Masticación)","peso":"15% EP2","color":"yellow"},{"curso":"Excretor","tipo":"Examen Teórico 3 + Práctico 3","detalle":"Cubre sem 9-10-11 (Contracorriente, ADH, K+)","peso":"Continua","color":"blue"},{"curso":"Casos Integr.","tipo":"⚠️ EXAMEN UNIDAD 3 (verificar fecha)","detalle":"Integra Locomotor + Excretor + BioMol (cara/cuello, regulación K+). 10 preg. opción múltiple, 20 min","peso":"40% del EP2","color":"yellow"}],"12":[{"curso":"BioMol","tipo":"⚠️ EXAMEN UNIDAD 3","detalle":"Cubre sem 9-11 (Mutaciones, PCR, CRISPR, Ómicas)","peso":"50% EP2","color":"yellow"},{"curso":"Bioquímica","tipo":"Eval. semanal 4","detalle":"Bioquímica ejercicio + integración metabólica","peso":"30% EP2","color":"orange"}],"13":[],"14":[{"curso":"Locomotor","tipo":"⚠️ FORMATIVO 4","detalle":"Cubre sem 12-13-14 (Tronco, Abdomen, Fisiología muscular)","peso":"15% EP2","color":"yellow"},{"curso":"BioMol","tipo":"Examen Práctica EPR2","detalle":"Individual — laboratorio sem 9-14","peso":"25% EP2","color":"orange"},{"curso":"Bioquímica","tipo":"Eval. semanal 5","detalle":"Comunicación celular y sistema endocrino","peso":"30% EP2","color":"orange"}],"15":[{"curso":"BioMol","tipo":"⚠️ EXAMEN UNIDAD 4","detalle":"Cubre sem 12-14 (Infecciones, Cáncer, Metabolismo molecular)","peso":"50% EP2","color":"yellow"},{"curso":"BioMol","tipo":"⚠️ SUSTENTACIÓN TIN final","detalle":"Exposición grupal artículo completo ante jurado","peso":"25% EP2","color":"red"},{"curso":"Bioquímica","tipo":"⚠️ JORNADA INVESTIGACIÓN","detalle":"Exposición trabajo TI2 ante jurado","peso":"25% EP2","color":"red"},{"curso":"Excretor","tipo":"Examen Teórico 4 + Práctico 4","detalle":"Cubre sem 12-13-14 (Ca/P, Ácido-Base, Glucosa/Urea)","peso":"Continua","color":"blue"}],"16":[{"curso":"Locomotor","tipo":"🔴 FINAL LOCOMOTOR","detalle":"20 MCQ teórico + Práctico cadáveres/esqueletos (U3-U4)","peso":"30% total","color":"red"},{"curso":"Excretor","tipo":"🔴 EVF EXCRETOR","detalle":"40 preguntas, 50 min (sem 9-15)","peso":"25% total","color":"red"},{"curso":"BioMol","tipo":"🔴 EVF BIOMOL","detalle":"Mínimo 20 preguntas (sem 9-15)","peso":"25% total","color":"red"},{"curso":"Bioquímica","tipo":"🔴 2do PARCIAL BIOQUÍMICA","detalle":"20 preguntas (sem 7-15)","peso":"Parcial","color":"red"}],"17":[{"curso":"Bioquímica","tipo":"🔴 EXAMEN FINAL BIOQUÍMICA","detalle":"Todo el curso — 20 preguntas","peso":"25% total","color":"red"}]};
+const EVAL_DATA = {"1":[],"2":[{"curso":"Locomotor","tipo":"Pre-test","detalle":"Pre-test sem 1-2 (Generalidades + Articulaciones)","peso":"35% EP","color":"red"}],"3":[{"curso":"Locomotor","tipo":"⚠️ FORMATIVO 1","detalle":"Cubre sem 1-2-3 (Generalidades, Articulaciones, Cráneo)","peso":"15% EP1","color":"yellow"},{"curso":"Bioquímica","tipo":"Eval. semanal 1","detalle":"Fosforilación oxidativa, Krebs","peso":"30% EP1","color":"orange"},{"curso":"Excretor","tipo":"Examen Teórico 1 + Práctico 1","detalle":"Cubre sem 1-2-3 (Embriología, Histología, Anatomía)","peso":"Continua","color":"blue"}],"4":[{"curso":"BioMol","tipo":"⚠️ EXAMEN UNIDAD 1","detalle":"Cubre sem 1-3 (Macromoléculas, Enzimas, Ácidos Nucleicos)","peso":"50% EP1","color":"yellow"}],"5":[],"6":[{"curso":"Locomotor","tipo":"⚠️ FORMATIVO 2","detalle":"Cubre sem 4-5-6 (Columna, Miembro sup/inf, Muscular sup)","peso":"15% EP1","color":"yellow"},{"curso":"BioMol","tipo":"Examen Práctica EPR1","detalle":"Individual — laboratorio sem 1-6","peso":"25% EP1","color":"orange"},{"curso":"Excretor","tipo":"Examen Teórico 2","detalle":"Cubre sem 4-5-6 (Vascularización, Transporte, TFG)","peso":"Continua","color":"blue"}],"7":[{"curso":"BioMol","tipo":"⚠️ EXAMEN UNIDAD 2","detalle":"Cubre sem 4-6 (Replicación, Transcripción, Traducción)","peso":"50% EP1","color":"yellow"},{"curso":"BioMol","tipo":"⚠️ SUSTENTACIÓN TIN parcial","detalle":"Avance artículo de revisión grupal","peso":"25% EP1","color":"red"},{"curso":"Excretor","tipo":"Examen Práctico 2","detalle":"Cubre sem 4-5-6-7","peso":"Continua","color":"blue"}],"8":[{"curso":"Locomotor","tipo":"🔴 PARCIAL LOCOMOTOR","detalle":"20 MCQ teórico + Práctico cadáveres/esqueletos (U1-U2)","peso":"30% total","color":"red"},{"curso":"Excretor","tipo":"🔴 EVP EXCRETOR","detalle":"40 preguntas, 50 min (sem 1-7)","peso":"20% total","color":"red"},{"curso":"BioMol","tipo":"🔴 EVP BIOMOL","detalle":"Mínimo 20 preguntas (sem 1-7)","peso":"20% total","color":"red"},{"curso":"Bioquímica","tipo":"🔴 EVP BIOQUÍMICA","detalle":"20 preguntas, 4 alternativas (U1-U2)","peso":"20% total","color":"red"}],"9":[],"10":[{"curso":"Bioquímica","tipo":"Evaluación semanal 3","detalle":"Lípidos: digestión, transporte y síntesis","peso":"Continua EP2","color":"blue"}],"11":[{"curso":"Locomotor","tipo":"⚠️ FORMATIVO 3","detalle":"Cubre sem 9-10-11 (Cadera, Pierna/Pie, Mímica/Masticación)","peso":"15% EP2","color":"yellow"},{"curso":"Excretor","tipo":"Examen Teórico 3 + Práctico 3","detalle":"Cubre sem 9-10-11 (Contracorriente, ADH, K+)","peso":"Continua","color":"blue"},{"curso":"Casos Integr.","tipo":"⚠️ EXAMEN UNIDAD 3 (verificar fecha)","detalle":"Integra Locomotor + Excretor + BioMol (cara/cuello, regulación K+). 10 preg. opción múltiple, 20 min","peso":"40% del EP2","color":"yellow"}],"12":[{"curso":"BioMol","tipo":"⚠️ EXAMEN UNIDAD 3","detalle":"Cubre sem 9-11 (Mutaciones, PCR, CRISPR, ADN recombinante)","peso":"50% EP2","color":"yellow"},{"curso":"Bioquímica","tipo":"Eval. semanal 4","detalle":"Bioquímica ejercicio + integración metabólica","peso":"30% EP2","color":"orange"}],"13":[],"14":[{"curso":"Locomotor","tipo":"⚠️ FORMATIVO 4","detalle":"Cubre sem 12-13-14 (Tronco, Abdomen, Fisiología muscular)","peso":"15% EP2","color":"yellow"},{"curso":"BioMol","tipo":"Examen Práctica EPR2","detalle":"Individual — laboratorio sem 9-14","peso":"25% EP2","color":"orange"},{"curso":"Bioquímica","tipo":"Eval. semanal 5","detalle":"Comunicación celular y sistema endocrino","peso":"30% EP2","color":"orange"}],"15":[{"curso":"BioMol","tipo":"⚠️ EXAMEN UNIDAD 4","detalle":"Cubre sem 12-14 (Infecciones, Cáncer, Metabolismo molecular)","peso":"50% EP2","color":"yellow"},{"curso":"BioMol","tipo":"⚠️ SUSTENTACIÓN TIN final","detalle":"Exposición grupal artículo completo ante jurado","peso":"25% EP2","color":"red"},{"curso":"Bioquímica","tipo":"⚠️ JORNADA INVESTIGACIÓN","detalle":"Exposición trabajo TI2 ante jurado","peso":"25% EP2","color":"red"},{"curso":"Excretor","tipo":"Examen Teórico 4 + Práctico 4","detalle":"Cubre sem 12-13-14 (Ca/P, Ácido-Base, Glucosa/Urea)","peso":"Continua","color":"blue"}],"16":[{"curso":"Locomotor","tipo":"🔴 FINAL LOCOMOTOR","detalle":"20 MCQ teórico + Práctico cadáveres/esqueletos (U3-U4)","peso":"30% total","color":"red"},{"curso":"Excretor","tipo":"🔴 EVF EXCRETOR","detalle":"40 preguntas, 50 min (sem 9-15)","peso":"25% total","color":"red"},{"curso":"BioMol","tipo":"🔴 EVF BIOMOL","detalle":"Mínimo 20 preguntas (sem 9-15)","peso":"25% total","color":"red"},{"curso":"Bioquímica","tipo":"🔴 2do PARCIAL BIOQUÍMICA","detalle":"20 preguntas (sem 7-15)","peso":"Parcial","color":"red"}],"17":[{"curso":"Bioquímica","tipo":"🔴 EXAMEN FINAL BIOQUÍMICA","detalle":"Todo el curso — 20 preguntas","peso":"25% total","color":"red"}]};
 
 // Fechas inicio de semana (lunes de cada sem)
 const EVAL_SEM1 = new Date('2026-04-06');
@@ -3631,6 +3802,7 @@ function pomoTick() {
 function pomoOnComplete() {
   // Vibrar
   if (navigator.vibrate) navigator.vibrate([400, 100, 400, 100, 400]);
+  SFX.success();  // 🕸️ chime de logro
 
   // Notificación
   const msgs = {
@@ -3715,6 +3887,18 @@ document.addEventListener('DOMContentLoaded', () => {
   evalBuildPanel();
   actualizarCountdown();
   pomoInit();
+  SFX.init();
+  sfxUpdateBtn();
+  // Desbloquear audio en el primer gesto del usuario (requisito de navegadores)
+  const sfxUnlock = () => {
+    SFX.unlock();
+    document.removeEventListener('pointerdown', sfxUnlock);
+    document.removeEventListener('keydown', sfxUnlock);
+    document.removeEventListener('touchstart', sfxUnlock);
+  };
+  document.addEventListener('pointerdown', sfxUnlock, { once: false });
+  document.addEventListener('keydown', sfxUnlock, { once: false });
+  document.addEventListener('touchstart', sfxUnlock, { once: false });
   const notesArea = document.getElementById('tl-notes-area');
   if (notesArea && !notesArea.dataset.bound) {
     notesArea.dataset.bound = '1';
@@ -3728,6 +3912,8 @@ if (document.readyState === 'complete' || document.readyState === 'interactive')
   evalBuildPanel();
   actualizarCountdown();
   pomoInit();
+  SFX.init();
+  sfxUpdateBtn();
 }
 
 </script>
@@ -3850,6 +4036,9 @@ if (document.readyState === 'complete' || document.readyState === 'interactive')
   🔔 Activar recordatorios
 </button>
 
+
+<!-- ══ BOTÓN SILENCIAR SONIDOS ══ -->
+<button id="sfx-toggle" onclick="SFX.toggle()" title="Sonidos">🔊</button>
 
 <!-- ══ WIDGET EVALUACIONES ══ -->
 <div id="eval-widget">

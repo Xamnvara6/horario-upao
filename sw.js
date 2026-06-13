@@ -6,7 +6,7 @@
    ════════════════════════════════════════════════════════════ */
 'use strict';
 
-const CACHE = 'horario-v8';
+const CACHE = 'horario-v10';
 const CORE  = ['./', './index.html', './icon-192.png', './icon-512.png'];
 
 // ── Install: precache del core ──────────────────────────────
